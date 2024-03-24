@@ -1,37 +1,38 @@
-require("dotenv").config();
+require('dotenv').config();
 
-const express = require("express");
-const { default: helmet } = require("helmet");
-const compression = require("compression");
-const morgan = require("morgan");
+const express = require('express');
+const { default: helmet } = require('helmet');
+const compression = require('compression');
+const morgan = require('morgan');
 const app = express();
 // init middleware
 
-app.use(morgan("dev"));
+app.use(morgan('dev'));
 app.use(helmet());
 app.use(compression());
 app.use(express.json());
 app.use(
-  express.urlencoded({
-    extended: true,
-  })
+    express.urlencoded({
+        extended: true,
+    })
 );
 
 // init db
-require("./db/init.db");
+require('./db/init.db');
 // init router
+require('./routes/index');
 // handling error
 app.use((req, res, next) => {
-  const error = new Error("Not Found");
-  error.status = 404;
-  next(error);
+    const error = new Error('Not Found');
+    error.status = 404;
+    next(error);
 });
 app.use((error, req, res, next) => {
-  const statusCode = error.status || 500;
-  return res.status(statusCode).json({
-    status: "Errors",
-    code: statusCode,
-    message: error.message || "Internal Server Error",
-  });
+    const statusCode = error.status || 500;
+    return res.status(statusCode).json({
+        status: 'Errors',
+        code: statusCode,
+        message: error.message || 'Internal Server Error',
+    });
 });
 module.exports = app;
