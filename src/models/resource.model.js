@@ -1,29 +1,29 @@
-"use strict";
-const { Schema, model } = require("mongoose"); // Erase if already required
-const COLLECTION_NAME = "Resources";
-const DOCUMENT_NAME = "Resource";
+'use strict';
+const { Schema, model } = require('mongoose'); // Erase if already required
+const COLLECTION_NAME = 'Resources';
+const DOCUMENT_NAME = 'Resource';
 // Declare the Schema of the Mongo model
 var resourceSchema = new Schema(
-  {
-    name: {
-      type: String,
-      required: true,
-      default: "",
+    {
+        name: {
+            type: String,
+            required: true,
+            default: '',
+        },
+        slug: {
+            type: String,
+            required: true,
+            default: '',
+        },
+        description: {
+            type: String,
+            default: '',
+        },
     },
-    slug: {
-      type: String,
-      required: true,
-      default: "",
-    },
-    description: {
-      type: String,
-      default: "",
-    },
-  },
-  {
-    timestamps: true,
-    collection: COLLECTION_NAME,
-  }
+    {
+        timestamps: true,
+        collection: COLLECTION_NAME,
+    }
 );
 
 //Export the model
