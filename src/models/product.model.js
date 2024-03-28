@@ -12,7 +12,10 @@ const productSchema = new Schema(
       min: [5, "Username must be more than 6 characters"],
       required: [true, "Please enter brand name"],
     },
-    slug: String,
+    slug: {
+      type: String,
+      unique: true,
+    },
     brand_id: {
       type: Schema.Types.ObjectId,
       ref: "Brand",
@@ -20,6 +23,11 @@ const productSchema = new Schema(
     category: {
       type: Schema.Types.ObjectId,
       ref: "Category",
+      required: true,
+    },
+    color: {
+      type: Schema.Types.ObjectId,
+      ref: "Color",
     },
     description: {
       type: String,
@@ -52,17 +60,13 @@ const productSchema = new Schema(
       type: Schema.Types.Mixed,
       required: true,
     },
-    slug: {
+    sku: {
       type: String,
     },
     userId: {
       type: Schema.Types.ObjectId,
+      require: true,
       ref: "User",
-      required: true,
-    },
-    sku: {
-      type: String,
-      unique: true,
     },
   },
   {
@@ -73,7 +77,6 @@ const productSchema = new Schema(
 productSchema.index({ name: "text", description: "text" });
 productSchema.pre("save", function (next) {
   this.slug = slugify(this.name, { lower: true });
-  // this.sku = 
   next();
 });
 module.exports = model(DOCUMENT_NAME, productSchema);

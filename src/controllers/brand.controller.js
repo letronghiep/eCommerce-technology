@@ -8,7 +8,7 @@ const createBrand = catchAsync(async (req, res, next) => {
   const newBrand = new brandModel({
     name,
   });
-  throw new CREATED({
+  return new CREATED({
     message: `Created a new Brand with ID`,
     metadata: await brandModel.create(newBrand),
   }).send(res);
