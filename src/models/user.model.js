@@ -12,6 +12,7 @@ var userSchema = new Schema(
         username: {
             type: String,
             required: true,
+            min: [6, 'Please enter username greater than 6 characters'],
             unique: true,
         },
         password: {
@@ -21,6 +22,7 @@ var userSchema = new Schema(
         phone_number: {
             type: String,
             required: true,
+            unique: true,
         },
         email: {
             type: String,
@@ -35,6 +37,14 @@ var userSchema = new Schema(
             type: String,
             default: 'pending',
             enum: ['pending', 'active', 'block'],
+        },
+        access_token: {
+            type: String,
+            default: null,
+        },
+        refresh_token: {
+            type: String,
+            default: null,
         },
     },
     {
