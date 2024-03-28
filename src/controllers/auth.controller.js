@@ -62,15 +62,11 @@ const logIn = catchAsync(async (req, res, next) => {
             `Password is incorrect, please try again...`
         );
 
+    const dataToken = { id: user._id, username: user.username };
     const accessToken = await jwt.sign(
-        {
-            exp: Math.floor(Date.now() / 1000) + 3 * 24 * 60 * 60,
-            data: {
-                id: user._id,
-                username: user.username,
-            },
-        },
-        process.env.ACCESS_TOKEN_SECRET
+        dataToken,
+        process.env.ACCESS_TOKEN_SECRET,
+        { expiresIn: process.env.ACCESS_TOKEN_TIMEOUT }
     );
 
     if (!accessToken)
@@ -81,14 +77,9 @@ const logIn = catchAsync(async (req, res, next) => {
     await User.findByIdAndUpdate(user._id, { access_token: accessToken });
 
     const refreshToken = await jwt.sign(
-        {
-            exp: Math.floor(Date.now() / 1000) + 30 * 24 * 60 * 60,
-            data: {
-                id: user._id,
-                username: user.username,
-            },
-        },
-        process.env.ACCESS_REFRESH_TOKEN_SECRET
+        dataToken,
+        process.env.ACCESS_REFRESH_TOKEN_SECRET,
+        { expiresIn: process.env.ACCESS_REFRESH_TOKEN_TIMEOUT }
     );
     await User.findByIdAndUpdate(user._id, { refresh_token: refreshToken });
 
@@ -120,7 +111,7 @@ const refreshToken = catchAsync(async (req, res, next) => {
     if (!decoded)
         throw new ApiError(StatusCodes.BAD_REQUEST, 'Invalid access token ...');
 
-    const username = decoded.data;
+    const username = decoded.username;
     const user = await User.findOne({ username: username });
     if (!user)
         throw new ApiError(StatusCodes.NOT_FOUND, `User ${username} not found`);
@@ -131,15 +122,11 @@ const refreshToken = catchAsync(async (req, res, next) => {
             'Invalid refrest token ...'
         );
 
+    const dataToken = { id: user._id, username: user.username };
     const accessTokenNew = await jwt.sign(
-        {
-            exp: Math.floor(Date.now() / 1000) + 3 * 24 * 60 * 60,
-            data: {
-                id: user._id,
-                username: user.username,
-            },
-        },
-        process.env.ACCESS_TOKEN_SECRET
+        dataToken,
+        process.env.ACCESS_TOKEN_SECRET,
+        { expiresIn: process.env.ACCESS_TOKEN_TIME }
     );
 
     if (!accessTokenNew)

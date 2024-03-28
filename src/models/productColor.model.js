@@ -1,18 +1,18 @@
 'use strict';
 
 const { Schema, model } = require('mongoose');
+const DOCUMENT_NAME = 'ProductColor';
 const COLLECTION_NAME = 'ProductColors';
-const DOCUMENT_NAME = 'ProductColors';
 
-const rattingSchema = new Schema(
+const productColorSchema = new Schema(
     {
         product_id: {
-            type: mongoose.Schema.Types.ObjectId,
+            type: Schema.Types.ObjectId,
             ref: 'Product',
             required: true,
         },
         colors_id: {
-            type: mongoose.Schema.Types.ObjectId,
+            type: Schema.Types.ObjectId,
             ref: 'Color',
             required: true,
         },
@@ -23,4 +23,4 @@ const rattingSchema = new Schema(
     }
 );
 
-module.exports = model(DOCUMENT_NAME, rattingSchema);
+module.exports = model(DOCUMENT_NAME, productColorSchema);

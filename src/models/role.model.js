@@ -48,7 +48,7 @@ var roleSchema = new Schema(
 );
 
 roleSchema.pre('save', (next) => {
-    this.slug = slugify(toString(this.name), {lower: true});
+    this.slug = slugify(toString(this.name), { lower: true });
     next();
 });
 

@@ -18,10 +18,6 @@ const rattingSchema = new Schema(
             ref: 'User',
             required: true,
         },
-        created_at: {
-            type: Date,
-            default: Date.now,
-        },
     },
     {
         timestamps: true,
