@@ -1,7 +1,9 @@
 # mongo db address
+
 mongodb+srv://Cluster09279:letronghiep1@cluster09279.0xtxlqi.mongodb.net/
 
 # env
+
     PORT = 3055
 
     DEV_APP_PORT = 3056
@@ -17,5 +19,9 @@ mongodb+srv://Cluster09279:letronghiep1@cluster09279.0xtxlqi.mongodb.net/
     PRO_DB_EXTRA=cluster09279
     PRO_APP_PASSWORD=letronghiep1
 
+    ACCESS_TOKEN_SECRET=Nhom06
+    ACCESS_REFRESH_TOKEN_SECRET=Bomaylanhat
+
 # Chức năng của các folder
-    service: Viết logic function 
+
+    service: Viết logic function
