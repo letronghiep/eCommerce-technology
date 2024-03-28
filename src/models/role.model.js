@@ -1,5 +1,6 @@
 "use strict";
 const { Schema, model } = require("mongoose"); // Erase if already required
+const { default: slugify } = require("slugify");
 const COLLECTION_NAME = "Roles";
 const DOCUMENT_NAME = "Role";
 // Declare the Schema of the Mongo model
@@ -12,7 +13,6 @@ var roleSchema = new Schema(
     },
     slug: {
       type: String,
-      required: true,
     },
     status: {
       type: String,
@@ -25,12 +25,12 @@ var roleSchema = new Schema(
         resource: {
           type: Schema.Types.ObjectId,
           ref: "Resource",
-          required: true,
+          // required: true,
         },
         actions: [
           {
             type: String,
-            required: true,
+            // required: true,
           },
         ],
         attributes: {
@@ -45,6 +45,9 @@ var roleSchema = new Schema(
     collection: COLLECTION_NAME,
   }
 );
-
+roleSchema.pre("save", function (next) {
+  this.slug = slugify(this.name, { lower: true });
+  next();
+});
 //Export the model
 module.exports = model(DOCUMENT_NAME, roleSchema);

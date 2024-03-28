@@ -17,5 +17,5 @@ exports.errorHandlingMiddleware = (err, req, res, next) => {
     // if (env.BUILD_MODE !== 'dev') delete responseError.stack
 
     // Trả responseError về phía Front-end
-    res.status(responseError.statusCode).json(responseError);
+    return res.status(responseError.statusCode).json(responseError);
 };
