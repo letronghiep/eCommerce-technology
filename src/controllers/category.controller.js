@@ -17,3 +17,4 @@ const createCategory = catchAsync(async (req, res, next) => {
 module.exports = {
   createCategory,
 };
+// Create category

@@ -9,6 +9,11 @@ const { CREATED, OK } = require("../utils/success.response");
 const { Types } = require("mongoose");
 const ApiError = require("../utils/ApiError");
 const { StatusCodes } = require("http-status-codes");
+const {
+  updateNestedObjectParser,
+  removeUndefinedObject,
+} = require("../repositories/updateNested");
+// Create product
 const createProduct = catchAsync(async (req, res, next) => {
   const {
     name,
@@ -63,8 +68,20 @@ const updateProduct = catchAsync(async (req, res, next) => {
     _id: req.params.id,
     userId: req.user.id,
   });
-  if(!foundShop) throw new ApiError(StatusCodes.NOT_FOUND, 'No such Product Found');
-  
+  if (!foundShop)
+    throw new ApiError(StatusCodes.NOT_FOUND, "No such Product Found");
+  const updatedProduct = await productModel.findByIdAndUpdate(
+    {
+      _id: req.params.id,
+      userId: req.user.id,
+    },
+    updateNestedObjectParser(removeUndefinedObject(req.body))
+  );
+  console.log("Updated::", updatedProduct);
+  return new CREATED({
+    message: "Your Product has been updated successfully",
+    metadata: await updatedProduct,
+  }).send(res);
 });
 // Display with homePage
 const getAllProduct = catchAsync(async (req, res, next) => {
@@ -149,10 +166,57 @@ const unPublishedProduct = catchAsync(async (req, res, next) => {
     metadata: updatedProduct,
   }).send(res);
 });
+// Get product By id
+const getProductById = catchAsync(async (req, res, next) => {
+  const foundProduct = await productModel.findOne({
+    _id: req.params.id,
+  });
+  if (!foundProduct)
+    throw new ApiError(StatusCodes.NOT_FOUND, "Product Not Found");
+  return await new OK({
+    message: "Successfully got the data",
+    metadata: await foundProduct,
+  }).send(res);
+});
+/* Admin Dashboard */
+// Display with adminDashboard
+const getAllProductForAdmin = catchAsync(async (req, res, next) => {
+  const queryParams = req.query;
+
+  const page = parseInt(req.query.page) || 1;
+  const limit = parseInt(req.query.limit) || 10;
+  const products = await paginate({
+    model: productModel,
+    page: page,
+    sort: queryParams.sortBy,
+    limit: limit,
+  });
+  return new OK({
+    message: "Product list",
+    metadata: await products,
+  }).send(res);
+});
+// delete product
+const deleteProductById = catchAsync(async (req, res, next) => {
+  const foundProduct = await productModel.findOne({
+    _id: req.params.id,
+  });
+  if (!foundProduct)
+    throw new ApiError(StatusCodes.NOT_FOUND, "Product not found");
+
+  await productModel.findByIdAndDelete(req.params.id);
+  return new OK({
+    message: "Product is deleted",
+  }).send(res);
+});
 module.exports = {
   createProduct,
+  updateProduct,
   getAllProduct,
   searchProducts,
   publishedProductInDraft,
   unPublishedProduct,
+  getProductById,
+  getAllProductForAdmin,
+  deleteProductById,
 };

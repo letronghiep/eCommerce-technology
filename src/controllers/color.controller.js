@@ -16,3 +16,4 @@ const createColor = catchAsync(async (req, res, next) => {
 module.exports = {
   createColor,
 };
+// Create color
