@@ -10,7 +10,6 @@ const authentication = require('../middlewares/authentication.middleware');
 
 const router = express.Router();
 
-router.use(authentication);
 router.route('/:id').get(getUser).put(updateUser).delete(deleteUser);
 router.route('/').get(getAllUsers);
 

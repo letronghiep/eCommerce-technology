@@ -7,7 +7,7 @@ const DOCUMENT_NAME = 'ShoppingCart';
 const shoppingCartSchema = new Schema(
     {
         user_id: {
-            type: mongoose.Schema.Types.ObjectId,
+            type: Schema.Types.ObjectId,
             ref: 'User',
             required: true,
         },

@@ -4,12 +4,20 @@ const express = require('express');
 const { default: helmet } = require('helmet');
 const compression = require('compression');
 const morgan = require('morgan');
+const cors = require('cors');
 const cookieParser = require('cookie-parser');
 
+const credentials = require('./middlewares/credentials');
+const corsOptions = require('./configs/corsOptions');
 const {
     errorHandlingMiddleware,
 } = require('./middlewares/errorHandling.middleware');
+
 const app = express();
+
+// Handle options credentials check - before CORS
+app.use(credentials);
+app.use(cors(corsOptions));
 
 // init middleware
 app.use(express.urlencoded({ extended: true }));

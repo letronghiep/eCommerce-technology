@@ -3,16 +3,17 @@ const { StatusCodes, ReasonPhrases } = require('http-status-codes');
 const ApiError = require('../utils/ApiError');
 const catchAsync = require('../utils/catchAsync');
 const Role = require('../models/role.model');
+const { OK, CREATED } = require('../utils/success.response');
 
 const getAllRoles = catchAsync(async (req, res, next) => {
     const roles = await Role.find();
     if (!roles)
         throw new ApiError(StatusCodes.NOT_FOUND, ReasonPhrases.NOT_FOUND);
 
-    res.status(StatusCodes.OK).json({
+    return new OK({
         message: ReasonPhrases.OK,
-        roles: roles,
-    });
+        metadata: roles,
+    }).send(res);
 });
 
 const getRole = catchAsync(async (req, res, next) => {
@@ -21,10 +22,10 @@ const getRole = catchAsync(async (req, res, next) => {
     if (!role)
         throw new ApiError(StatusCodes.NOT_FOUND, ReasonPhrases.NOT_FOUND);
 
-    res.status(StatusCodes.OK).json({
+    return new OK({
         message: ReasonPhrases.OK,
-        role: role,
-    });
+        metadata: role,
+    }).send(res);
 });
 
 const createRole = catchAsync(async (req, res, next) => {
@@ -37,10 +38,10 @@ const createRole = catchAsync(async (req, res, next) => {
     if (!newRole)
         throw new ApiError(StatusCodes.CONFLICT, ReasonPhrases.CONFLICT);
 
-    res.status(StatusCodes.OK).json({
-        message: ReasonPhrases.OK,
-        role: newRole,
-    });
+    return new CREATED({
+        message: ReasonPhrases.CREATED,
+        metadata: newRole,
+    }).send(res);
 });
 
 const updateRole = catchAsync(async (req, res, next) => {
@@ -49,15 +50,15 @@ const updateRole = catchAsync(async (req, res, next) => {
         runValidators: true,
     });
 
-    res.status(StatusCodes.OK).json({
+    return new OK({
         message: ReasonPhrases.OK,
-        role: roleUpdate,
-    });
+        metadata: roleUpdate,
+    }).send(res);
 });
 
 const deleteRole = catchAsync(async (req, res, next) => {
     await Role.findByIdAndUpdate(req.params.id, {
-        status: "block",
+        status: 'block',
     });
 
     res.status(StatusCodes.NO_CONTENT).json({
