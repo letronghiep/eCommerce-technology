@@ -1,12 +1,13 @@
 'use strict';
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
-const cookieParser = require('cookie-parser');
 
 const { StatusCodes, ReasonPhrases } = require('http-status-codes');
 const ApiError = require('../utils/ApiError');
 const catchAsync = require('../utils/catchAsync');
+
 const User = require('../models/user.model');
+const { OK, CREATED } = require('../utils/success.response');
 
 // CREATE A NEW USER
 const register = catchAsync(async (req, res, next) => {
@@ -36,10 +37,10 @@ const register = catchAsync(async (req, res, next) => {
                 ReasonPhrases.BAD_REQUEST
             );
 
-        res.status(StatusCodes.CREATED).json({
-            message: ReasonPhrases.CREATED,
-            user: newUser,
-        });
+        return new CREATED({
+            message: 'User created successfully',
+            metadata: newUser,
+        }).send(res);
     }
 });
 
@@ -83,24 +84,36 @@ const logIn = catchAsync(async (req, res, next) => {
     );
     await User.findByIdAndUpdate(user._id, { refresh_token: refreshToken });
 
-    req.user = user;
-    res.status(StatusCodes.OK).json({
-        message: 'Login successful',
-        accessToken: accessToken,
-        refreshToken: refreshToken,
-        user: user,
+    res.cookie('jwt', refreshToken, {
+        httpOnly: true,
+        maxAge: 7 * 24 * 60 * 60 * 1000,
     });
+    return new OK({
+        message: 'Login successful',
+        metadata: {
+            accessToken: accessToken,
+            refreshToken: refreshToken,
+            user: user,
+        },
+    }).send(res);
 });
 
 const refreshToken = catchAsync(async (req, res, next) => {
-    const accessToken = req.headers.x_authorization;
-    if (!accessToken)
+    const authHeaders = req.headers['authorization'];
+    if (!authHeaders)
         throw new ApiError(
-            StatusCodes.BAD_REQUEST,
-            'Access token not found...'
+            StatusCodes.UNAUTHORIZED,
+            'Invalid authorization header'
         );
 
-    const refreshToken = req.body.refresh_token;
+    const accessToken = authHeaders.split(' ')[1];
+    if (!accessToken)
+        throw new ApiError(
+            StatusCodes.UNAUTHORIZED,
+            ReasonPhrases.UNAUTHORIZED
+        );
+
+    const refreshToken = req.cookies.jwt;
     if (!refreshToken)
         throw new ApiError(
             StatusCodes.BAD_REQUEST,
@@ -111,22 +124,17 @@ const refreshToken = catchAsync(async (req, res, next) => {
     if (!decoded)
         throw new ApiError(StatusCodes.BAD_REQUEST, 'Invalid access token ...');
 
-    const username = decoded.username;
-    const user = await User.findOne({ username: username });
-    if (!user)
-        throw new ApiError(StatusCodes.NOT_FOUND, `User ${username} not found`);
+    if (req.user.username !== decoded.username)
+        throw new ApiError(StatusCodes.FORBIDDEN, ReasonPhrases.FORBIDDEN);
 
-    if (refreshToken !== user.refresh_token)
-        throw new ApiError(
-            StatusCodes.BAD_REQUEST,
-            'Invalid refrest token ...'
-        );
-
-    const dataToken = { id: user._id, username: user.username };
+    const dataToken = {
+        id: decoded.username._id,
+        username: decoded.username.username,
+    };
     const accessTokenNew = await jwt.sign(
         dataToken,
         process.env.ACCESS_TOKEN_SECRET,
-        { expiresIn: process.env.ACCESS_TOKEN_TIME }
+        { expiresIn: process.env.ACCESS_TOKEN_TIMEOUT }
     );
 
     if (!accessTokenNew)
@@ -134,18 +142,46 @@ const refreshToken = catchAsync(async (req, res, next) => {
             StatusCodes.FORBIDDEN,
             `Creating access token failed, please try again...`
         );
-    await User.findByIdAndUpdate(user._id, { access_token: accessTokenNew });
-
-    res.status(StatusCodes.OK).json({
-        message: 'Refresh token successfully',
-        accessToken: accessTokenNew,
+    await User.findByIdAndUpdate(decoded.username._id, {
+        access_token: accessTokenNew,
     });
+    return new OK({
+        message: 'Refresh token successfully',
+        metadata: accessTokenNew,
+    }).send(res);
 });
 
 const logOut = catchAsync(async (req, res, next) => {
-    res.json({
-        success: 'abc',
-    });
+    const refreshToken = req.cookies.jwt;
+    if (!refreshToken)
+        res.status(StatusCodes.NO_CONTENT).json({
+            message: ReasonPhrases.NO_CONTENT,
+        });
+
+    const foundUser = await User.findOne({ refresh_token: refreshToken });
+    if (!foundUser) {
+        res.clearCookie('jwt', {
+            httpOnly: true,
+            sameSite: 'None',
+            secure: true,
+        });
+        res.status(StatusCodes.NO_CONTENT).json({
+            message: ReasonPhrases.NO_CONTENT,
+        });
+    } else {
+        await User.findByIdAndUpdate(foundUser._id, {
+            access_token: null,
+            refresh_token: null
+        });
+        res.clearCookie('jwt', {
+            httpOnly: true,
+            sameSite: 'None',
+            secure: true,
+        });
+        res.status(StatusCodes.NO_CONTENT).json({
+            message: ReasonPhrases.NO_CONTENT,
+        });
+    }
 });
 
 module.exports = { register, logIn, logOut, refreshToken };

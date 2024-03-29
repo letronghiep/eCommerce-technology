@@ -1,5 +1,7 @@
 'use strict';
 const express = require('express');
+
+const checkAuth = require('../middlewares/checkAuth');
 const {
     getAllUsers,
     getUser,
@@ -9,6 +11,7 @@ const {
 
 const router = express.Router();
 
+router.use(checkAuth);
 router.route('/:id').get(getUser).put(updateUser).delete(deleteUser);
 router.route('/').get(getAllUsers);
 
