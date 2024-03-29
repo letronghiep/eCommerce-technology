@@ -4,6 +4,8 @@ const express = require('express');
 const { default: helmet } = require('helmet');
 const compression = require('compression');
 const morgan = require('morgan');
+const cookieParser = require('cookie-parser');
+
 const {
     errorHandlingMiddleware,
 } = require('./middlewares/errorHandling.middleware');
@@ -15,6 +17,7 @@ app.use(morgan('dev'));
 app.use(helmet());
 app.use(compression());
 app.use(express.json());
+app.use(cookieParser());
 app.use(
     express.urlencoded({
         extended: true,
