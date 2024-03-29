@@ -42,45 +42,34 @@ const register = catchAsync(async (req, res, next) => {
             metadata: newUser,
         }).send(res);
     }
+
 });
 
 // LOGIN
 const logIn = catchAsync(async (req, res, next) => {
-    const username = req.body.username.trim().toLowerCase() || 'abcdef';
-    const password = req.body.password || '123456';
+  const { username, password } = req.body;
+  const user = await User.findOne({ username: username });
+  if (!user)
+    throw new ApiError(StatusCodes.UNAUTHORIZED, `User ${username} not found`);
 
-    const user = await User.findOne({ username: username });
-    if (!user)
-        throw new ApiError(
-            StatusCodes.UNAUTHORIZED,
-            `User ${username} not found`
-        );
-
-    const isMathPassword = bcrypt.compareSync(password, user.password);
-    if (!isMathPassword)
-        throw new ApiError(
-            StatusCodes.UNAUTHORIZED,
-            `Password is incorrect, please try again...`
-        );
-
-    const dataToken = { id: user._id, username: user.username };
-    const accessToken = await jwt.sign(
-        dataToken,
-        process.env.ACCESS_TOKEN_SECRET,
-        { expiresIn: process.env.ACCESS_TOKEN_TIMEOUT }
+  const isMathPassword = await bcrypt.compare(password, user.password);
+  if (!isMathPassword)
+    throw new ApiError(
+      StatusCodes.UNAUTHORIZED,
+      `Password is incorrect, please try again...`
     );
 
-    if (!accessToken)
-        throw new ApiError(
-            StatusCodes.FORBIDDEN,
-            `Login unsuccessful, please try again...`
-        );
-    await User.findByIdAndUpdate(user._id, { access_token: accessToken });
+  const dataToken = { id: user._id, username: user.username };
+  const accessToken = await jwt.sign(
+    dataToken,
+    process.env.ACCESS_TOKEN_SECRET,
+    { expiresIn: process.env.ACCESS_TOKEN_TIMEOUT }
+  );
 
-    const refreshToken = await jwt.sign(
-        dataToken,
-        process.env.ACCESS_REFRESH_TOKEN_SECRET,
-        { expiresIn: process.env.ACCESS_REFRESH_TOKEN_TIMEOUT }
+  if (!accessToken)
+    throw new ApiError(
+      StatusCodes.FORBIDDEN,
+      `Login unsuccessful, please try again...`
     );
     await User.findByIdAndUpdate(user._id, { refresh_token: refreshToken });
 
@@ -135,7 +124,60 @@ const refreshToken = catchAsync(async (req, res, next) => {
         dataToken,
         process.env.ACCESS_TOKEN_SECRET,
         { expiresIn: process.env.ACCESS_TOKEN_TIMEOUT }
+
+  await User.findByIdAndUpdate(user._id, { access_token: accessToken });
+
+  const refreshToken = await jwt.sign(
+    dataToken,
+    process.env.ACCESS_REFRESH_TOKEN_SECRET,
+    { expiresIn: process.env.ACCESS_REFRESH_TOKEN_TIMEOUT }
+  );
+  await User.findByIdAndUpdate(user._id, { refresh_token: refreshToken });
+
+  req.user = user;
+  console.log("User req->", req.user);
+  res.status(StatusCodes.OK).json({
+    message: "Login successful",
+    accessToken: accessToken,
+    refreshToken: refreshToken,
+    user: user,
+  });
+});
+
+const refreshToken = catchAsync(async (req, res, next) => {
+  const accessToken = req.headers.x_authorization;
+  if (!accessToken)
+    throw new ApiError(StatusCodes.BAD_REQUEST, "Access token not found...");
+
+  const refreshToken = req.body.refresh_token;
+  if (!refreshToken)
+    throw new ApiError(StatusCodes.BAD_REQUEST, "Refresh token not found...");
+
+  const decoded = jwt.verify(accessToken, process.env.ACCESS_TOKEN_SECRET);
+  if (!decoded)
+    throw new ApiError(StatusCodes.BAD_REQUEST, "Invalid access token ...");
+
+  const username = decoded.username;
+  const user = await User.findOne({ username: username });
+  if (!user)
+    throw new ApiError(StatusCodes.NOT_FOUND, `User ${username} not found`);
+
+  if (refreshToken !== user.refresh_token)
+    throw new ApiError(StatusCodes.BAD_REQUEST, "Invalid refrest token ...");
+
+  const dataToken = { id: user._id, username: user.username };
+  const accessTokenNew = await jwt.sign(
+    dataToken,
+    process.env.ACCESS_TOKEN_SECRET,
+    { expiresIn: process.env.ACCESS_TOKEN_TIME }
+  );
+
+  if (!accessTokenNew)
+    throw new ApiError(
+      StatusCodes.FORBIDDEN,
+      `Creating access token failed, please try again...`
     );
+  await User.findByIdAndUpdate(user._id, { access_token: accessTokenNew });
 
     if (!accessTokenNew)
         throw new ApiError(
@@ -182,6 +224,18 @@ const logOut = catchAsync(async (req, res, next) => {
             message: ReasonPhrases.NO_CONTENT,
         });
     }
+
+  res.status(StatusCodes.OK).json({
+    message: "Refresh token successfully",
+    accessToken: accessTokenNew,
+  });
+});
+
+const logOut = catchAsync(async (req, res, next) => {
+  res.json({
+    success: "abc",
+  });
+
 });
 
 module.exports = { register, logIn, logOut, refreshToken };

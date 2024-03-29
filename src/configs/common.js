@@ -1,25 +1,32 @@
 "use strict";
 
 const { getSelectData } = require("../utils");
-
+const getSortCondition = function ($value) {
+  switch ($value) {
+    case "ctime":
+      return { _id: -1 };
+    default:
+      return { _id: 1 };
+  }
+};
 /**
  * @params {Number} page
  * @params {Number} perpage
  * @params {Number} limit
  */
 // Paginate
-const paginate = async (
+const paginate = async ({
   model,
   filter = {},
   query = {},
   page = 1,
   limit = 10,
-  select = []
-) => {
+  select = [],
+}) => {
   const skip = (page - 1) * limit;
   try {
     const sortBy = getSortCondition(query.sort);
-    const totalRow = await model.countDocument(filter);
+    const totalRow = await model.countDocuments(filter);
     const totalPages = Math.ceil(totalRow / limit);
     const data = await model
       .find(filter)
@@ -39,14 +46,25 @@ const paginate = async (
     console.log("Error in paginate");
   }
 };
-const getSortCondition = function ($value) {
-  switch ($value) {
-    case "ctime":
-      return { _id: -1 };
-    default:
-      return { _id: 1 };
+// Generate code
+const generateCode = (name) => {
+  if (name === null || name === "") return Math.floor(Math.random() * 100 + 1);
+  const arr = name.split(" ");
+  if (arr.length >= 2) {
+    return (
+      arr[0].substring(0, 1).toUpperCase() +
+      arr[1].substring(0, 1).toUpperCase()
+    );
   }
+  return name.substring(0, 2).toUpperCase();
+};
+console.log(generateCode("Máy tính xách tay")); // JD
+// SKU = category-brand-color-random2so
+const generateSku =  ({ category, brand, last_code, color }) => {
+  return  `${brand}${category}${color}${last_code}`;
 };
 module.exports = {
   paginate,
+  generateCode,
+  generateSku,
 };
