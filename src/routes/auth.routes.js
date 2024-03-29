@@ -6,14 +6,14 @@ const {
     logOut,
     refreshToken,
 } = require('../controllers/auth.controller');
-const checkAuth = require('../middlewares/checkAuth');
+const authentication = require('../middlewares/authentication.middleware');
 
 const router = express.Router();
 
 router.route('/register').post(register);
 router.route('/login').post(logIn);
-
-router.route('/refresh').post(checkAuth, refreshToken);
-router.route('/logout').post(checkAuth, logOut);
+router.use(authentication)
+router.route('/refresh').post( refreshToken);
+router.route('/logout').post( logOut);
 
 module.exports = router;
