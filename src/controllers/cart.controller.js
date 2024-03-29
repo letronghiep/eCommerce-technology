@@ -6,3 +6,4 @@ const catchAsync = require('../utils/catchAsync');
 const { CREATED } = require('../utils/success.response');
 
 module.exports = {};
+
