@@ -29,7 +29,7 @@ const paginate = async ({
     const totalRow = await model.countDocuments(filter);
     const totalPages = Math.ceil(totalRow / limit);
     const data = await model
-      .find(filter)
+      .find(filter || query, { score: { $meta: "textScore" } })
       .sort(sortBy)
       .skip(skip)
       .limit(limit)
@@ -43,7 +43,7 @@ const paginate = async ({
       data: data,
     };
   } catch (error) {
-    console.log("Error in paginate");
+    console.log("Error in paginate::", error.message);
   }
 };
 // Generate code
@@ -60,8 +60,8 @@ const generateCode = (name) => {
 };
 console.log(generateCode("Máy tính xách tay")); // JD
 // SKU = category-brand-color-random2so
-const generateSku =  ({ category, brand, last_code, color }) => {
-  return  `${brand}${category}${color}${last_code}`;
+const generateSku = ({ category, brand, last_code, color }) => {
+  return `${brand}${category}${color}${last_code}`;
 };
 module.exports = {
   paginate,

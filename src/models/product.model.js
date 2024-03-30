@@ -56,16 +56,19 @@ const productSchema = new Schema(
       type: Boolean,
       default: false,
     },
-    attribute: {
-      type: Schema.Types.Mixed,
-      required: true,
-    },
+    specs: [
+      {
+        k: { type: String, required: true },
+        v: { type: Schema.Types.Mixed, required: true },
+        u: String,
+      },
+    ],
     sku: {
       type: String,
     },
     userId: {
       type: Schema.Types.ObjectId,
-      require: true,
+      required: true,
       ref: "User",
     },
   },
@@ -74,9 +77,14 @@ const productSchema = new Schema(
     collection: COLLECTION_NAME,
   }
 );
-productSchema.index({ name: "text", description: "text" });
 productSchema.pre("save", function (next) {
   this.slug = slugify(this.name, { lower: true });
   next();
+});
+productSchema.index({
+  name: "text",
+  description: "text",
+  "specs.k": "text",
+  "specs.v": "text",
 });
 module.exports = model(DOCUMENT_NAME, productSchema);

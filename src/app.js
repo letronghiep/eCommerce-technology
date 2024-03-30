@@ -17,7 +17,7 @@ const app = express();
 
 // Handle options credentials check - before CORS
 app.use(credentials);
-app.use(cors(corsOptions));
+app.use(cors());
 
 // init middleware
 app.use(express.urlencoded({ extended: true }));

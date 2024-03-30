@@ -35,7 +35,8 @@ const register = catchAsync(async (req, res, next) => {
             throw new ApiError(
                 StatusCodes.BAD_REQUEST,
                 ReasonPhrases.BAD_REQUEST
-            );
+            );  
+        // Create cart
 
         return new CREATED({
             message: 'User created successfully',
@@ -62,7 +63,7 @@ const logIn = catchAsync(async (req, res, next) => {
             StatusCodes.UNAUTHORIZED,
             `Password is incorrect, please try again...`
         );
-
+            
     const dataToken = { id: user._id, username: user.username };
     const accessToken = await jwt.sign(
         dataToken,

@@ -13,6 +13,8 @@ const {
   updateNestedObjectParser,
   removeUndefinedObject,
 } = require("../repositories/updateNested");
+const { getSelectData } = require("../utils");
+const getProductBySearch = require("../repositories/search");
 // Create product
 const createProduct = catchAsync(async (req, res, next) => {
   const {
@@ -26,8 +28,9 @@ const createProduct = catchAsync(async (req, res, next) => {
     quantity_import,
     promotion,
     image_url,
-    attribute,
+    specs,
   } = req.body;
+  console.log("Product specs::", specs);
   const colorObj = await colorModel.findById(new Types.ObjectId(color)).lean();
   const categoryObj = await categoryModel
     .findById(new Types.ObjectId(category))
@@ -54,7 +57,7 @@ const createProduct = catchAsync(async (req, res, next) => {
     quantity_import,
     promotion,
     image_url,
-    attribute,
+    specs,
   });
   newProduct.sku = SKU.toString();
   return new CREATED({
@@ -104,22 +107,27 @@ const getAllProduct = catchAsync(async (req, res, next) => {
 });
 
 // search Product
-const searchProducts = catchAsync(async (req, res, next) => {
-  const queryParams = req.query;
+const searchProducts = catchAsync(async (req, res) => {
   const page = parseInt(req.query.page) || 1;
   const limit = parseInt(req.query.limit) || 10;
-  const textSearch = new RegExp(queryParams.q);
-  const products = await paginate({
-    model: productModel,
-    filter: { $text: { $search: textSearch }, isPublished: true },
-    page: page,
-    sort: { score: { $meta: "textScore" } },
-    limit: limit,
-    select: ["name", "brand_id", "price", "promotion"],
-  });
+  const keySearch = req.query;
+  console.log("Req params::", keySearch);
+  const filter = {
+    $text: { $search: req.query.keySearch },
+    isPublished: true,
+  };
+  const totalRow = await productModel.countDocuments(filter);
+  const totalPages = Math.ceil(totalRow / limit);
+  const products = await getProductBySearch(keySearch);
   return new OK({
     message: "Search Products",
-    metadata: await products,
+    metadata: await {
+      limit: limit,
+      currentPage: page,
+      totalRow,
+      totalPages,
+      data: products,
+    },
   }).send(res);
 });
 // Public Product In Draft

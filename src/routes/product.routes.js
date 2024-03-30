@@ -9,14 +9,14 @@ const {
   updateProduct,
   getAllProductForAdmin,
   getProductById,
-  deleteProductById
+  deleteProductById,
 } = require("../controllers/product.controller");
 const authentication = require("../middlewares/authentication.middleware");
 
 const router = express.Router();
 router.get("/", getAllProduct);
-router.get("/:id", getProductById);
 router.get("/search", searchProducts);
+router.get("/:id", getProductById);
 router.use(authentication);
 router.post("/", createProduct);
 router.get("/admin", getAllProductForAdmin);
