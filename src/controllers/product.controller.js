@@ -11,55 +11,60 @@ const Color = require('../models/color.model');
 const Brand = require('../models/brand.model');
 const Product = require('../models/product.model');
 const {
-    updateNestedObjectParser,
-    removeUndefinedObject,
-} = require('../repositories/updateNested');
+  updateNestedObjectParser,
+  removeUndefinedObject,
+} = require("../repositories/updateNested");
+const { getSelectData } = require("../utils");
+const getProductBySearch = require("../repositories/search");
 // Create product
 const createProduct = catchAsync(async (req, res, next) => {
-    const {
-        name,
-        brand_id,
-        userId,
-        category,
-        color,
-        description,
-        price,
-        quantity_import,
-        promotion,
-        image_url,
-        attribute,
-    } = req.body;
-    const colorObj = await Color.findById(new Types.ObjectId(color)).lean();
-    const categoryObj = await Category.findById(
-        new Types.ObjectId(category)
-    ).lean();
-    const brandObj = await Brand.findById(new Types.ObjectId(brand_id)).lean();
-    const randomCode = Math.floor(Math.random() * 100 + 1).toString();
-    const last_code = randomCode.length > 1 ? randomCode : '0' + randomCode;
-    const SKU = await generateSku({
-        brand: brandObj.brand_code,
-        category: categoryObj.category_code,
-        color: colorObj?.color_code,
-        last_code: last_code,
-    });
-    const newProduct = new Product({
-        name,
-        brand_id,
-        userId,
-        category,
-        color,
-        description,
-        price,
-        quantity_import,
-        promotion,
-        image_url,
-        attribute,
-    });
-    newProduct.sku = SKU.toString();
-    return new CREATED({
-        message: 'Product created successfully',
-        metadata: await Product.create(newProduct),
-    }).send(res);
+  const {
+    name,
+    brand_id,
+    userId,
+    category,
+    color,
+    description,
+    price,
+    quantity_import,
+    promotion,
+    image_url,
+    specs,
+  } = req.body;
+  console.log("Product specs::", specs);
+  const colorObj = await Color.findById(new Types.ObjectId(color)).lean();
+  const categoryObj = await categoryModel
+    .findById(new Types.ObjectId(category))
+    .lean();
+  const brandObj = await Brand
+    .findById(new Types.ObjectId(brand_id))
+    .lean();
+  const randomCode = Math.floor(Math.random() * 100 + 1).toString();
+  const last_code = randomCode.length > 1 ? randomCode : "0" + randomCode;
+  const SKU = await generateSku({
+    brand: brandObj.brand_code,
+    category: categoryObj.category_code,
+    color: colorObj?.color_code,
+    last_code: last_code,
+  });
+  const newProduct = new Product({
+    name,
+    brand_id,
+    userId,
+    category,
+    color,
+    description,
+    price,
+    quantity_import,
+    promotion,
+    image_url,
+    specs,
+  });
+  newProduct.sku = SKU.toString();
+  return new CREATED({
+    message: "Product created successfully",
+    metadata: await Product.create(newProduct),
+  }).send(res);
 });
 
 // Update product by Id
@@ -105,23 +110,28 @@ const getAllProduct = catchAsync(async (req, res, next) => {
 });
 
 // search Product
-const searchProducts = catchAsync(async (req, res, next) => {
-    const queryParams = req.query;
-    const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 10;
-    const textSearch = new RegExp(queryParams.q);
-    const products = await paginate({
-        model: Product,
-        filter: { $text: { $search: textSearch }, isPublished: true },
-        page: page,
-        sort: { score: { $meta: 'textScore' } },
-        limit: limit,
-        select: ['name', 'brand_id', 'price', 'promotion'],
-    });
-    return new OK({
-        message: 'Search Products',
-        metadata: await products,
-    }).send(res);
+const searchProducts = catchAsync(async (req, res) => {
+  const page = parseInt(req.query.page) || 1;
+  const limit = parseInt(req.query.limit) || 10;
+  const keySearch = req.query;
+  console.log("Req params::", keySearch);
+  const filter = {
+    $text: { $search: req.query.keySearch },
+    isPublished: true,
+  };
+  const totalRow = await Product.countDocuments(filter);
+  const totalPages = Math.ceil(totalRow / limit);
+  const products = await getProductBySearch(keySearch);
+  return new OK({
+    message: "Search Products",
+    metadata: await {
+      limit: limit,
+      currentPage: page,
+      totalRow,
+      totalPages,
+      data: products,
+    },
+  }).send(res);
 });
 // Public Product In Draft
 const publishedProductInDraft = catchAsync(async (req, res, next) => {
