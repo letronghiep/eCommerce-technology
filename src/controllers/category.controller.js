@@ -36,6 +36,7 @@ const getCategoryChild = catchAsync(async (req, res, next) => {
     metadata: await categories,
   }).send(res);
 });
+
 module.exports = {
   createCategory,
   getCategoryChild,

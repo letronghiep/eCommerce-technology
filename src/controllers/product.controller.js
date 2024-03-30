@@ -1,14 +1,15 @@
-"use strict";
-const { paginate, generateSku } = require("../configs/common");
-const categoryModel = require("../models/category.model");
-const colorModel = require("../models/color.model");
-const brandModel = require("../models/brand.model");
-const productModel = require("../models/product.model");
-const catchAsync = require("../utils/catchAsync");
-const { CREATED, OK } = require("../utils/success.response");
-const { Types } = require("mongoose");
-const ApiError = require("../utils/ApiError");
-const { StatusCodes } = require("http-status-codes");
+'use strict';
+const { Types } = require('mongoose');
+const { StatusCodes } = require('http-status-codes');
+
+const ApiError = require('../utils/ApiError');
+const catchAsync = require('../utils/catchAsync');
+const { CREATED, OK } = require('../utils/success.response');
+const { paginate, generateSku } = require('../configs/common');
+const Category = require('../models/category.model');
+const Color = require('../models/color.model');
+const Brand = require('../models/brand.model');
+const Product = require('../models/product.model');
 const {
   updateNestedObjectParser,
   removeUndefinedObject,
@@ -31,11 +32,11 @@ const createProduct = catchAsync(async (req, res, next) => {
     specs,
   } = req.body;
   console.log("Product specs::", specs);
-  const colorObj = await colorModel.findById(new Types.ObjectId(color)).lean();
+  const colorObj = await Color.findById(new Types.ObjectId(color)).lean();
   const categoryObj = await categoryModel
     .findById(new Types.ObjectId(category))
     .lean();
-  const brandObj = await brandModel
+  const brandObj = await Brand
     .findById(new Types.ObjectId(brand_id))
     .lean();
   const randomCode = Math.floor(Math.random() * 100 + 1).toString();
@@ -46,7 +47,7 @@ const createProduct = catchAsync(async (req, res, next) => {
     color: colorObj?.color_code,
     last_code: last_code,
   });
-  const newProduct = new productModel({
+  const newProduct = new Product({
     name,
     brand_id,
     userId,
@@ -62,48 +63,50 @@ const createProduct = catchAsync(async (req, res, next) => {
   newProduct.sku = SKU.toString();
   return new CREATED({
     message: "Product created successfully",
-    metadata: await productModel.create(newProduct),
+    metadata: await Product.create(newProduct),
   }).send(res);
 });
+
 // Update product by Id
 const updateProduct = catchAsync(async (req, res, next) => {
-  const foundShop = await productModel.findOne({
-    _id: req.params.id,
-    userId: req.user.id,
-  });
-  if (!foundShop)
-    throw new ApiError(StatusCodes.NOT_FOUND, "No such Product Found");
-  const updatedProduct = await productModel.findByIdAndUpdate(
-    {
-      _id: req.params.id,
-      userId: req.user.id,
-    },
-    updateNestedObjectParser(removeUndefinedObject(req.body))
-  );
-  console.log("Updated::", updatedProduct);
-  return new CREATED({
-    message: "Your Product has been updated successfully",
-    metadata: await updatedProduct,
-  }).send(res);
+    const foundShop = await Product.findOne({
+        _id: req.params.id,
+        userId: req.user.id,
+    });
+    if (!foundShop)
+        throw new ApiError(StatusCodes.NOT_FOUND, 'No such Product Found');
+    const updatedProduct = await Product.findByIdAndUpdate(
+        {
+            _id: req.params.id,
+            userId: req.user.id,
+        },
+        updateNestedObjectParser(removeUndefinedObject(req.body))
+    );
+    console.log('Updated::', updatedProduct);
+    return new CREATED({
+        message: 'Your Product has been updated successfully',
+        metadata: await updatedProduct,
+    }).send(res);
 });
+
 // Display with homePage
 const getAllProduct = catchAsync(async (req, res, next) => {
-  const queryParams = req.query;
+    const queryParams = req.query;
 
-  const page = parseInt(req.query.page) || 1;
-  const limit = parseInt(req.query.limit) || 10;
-  const products = await paginate({
-    model: productModel,
-    filter: { isPublished: true },
-    page: page,
-    sort: queryParams.sortBy,
-    limit: limit,
-    select: ["name", "brand_id", "price"],
-  });
-  return new OK({
-    message: "Product list",
-    metadata: await products,
-  }).send(res);
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const products = await paginate({
+        model: Product,
+        filter: { isPublished: true },
+        page: page,
+        sort: queryParams.sortBy,
+        limit: limit,
+        select: ['name', 'brand_id', 'price'],
+    });
+    return new OK({
+        message: 'Product list',
+        metadata: await products,
+    }).send(res);
 });
 
 // search Product
@@ -116,7 +119,7 @@ const searchProducts = catchAsync(async (req, res) => {
     $text: { $search: req.query.keySearch },
     isPublished: true,
   };
-  const totalRow = await productModel.countDocuments(filter);
+  const totalRow = await Product.countDocuments(filter);
   const totalPages = Math.ceil(totalRow / limit);
   const products = await getProductBySearch(keySearch);
   return new OK({
@@ -132,99 +135,99 @@ const searchProducts = catchAsync(async (req, res) => {
 });
 // Public Product In Draft
 const publishedProductInDraft = catchAsync(async (req, res, next) => {
-  const foundProduct = await productModel.findOne({
-    _id: req.params.id,
-    userId: new Types.ObjectId(req.user.id),
-    isPublished: false,
-  });
-  if (!foundProduct)
-    throw new ApiError(StatusCodes.NOT_FOUND, "Product not found");
-  foundProduct.isPublished = true;
-  const updatedProduct = await productModel.findByIdAndUpdate(
-    req.params.id,
-    foundProduct,
-    {
-      new: true,
-    }
-  );
-  return await new OK({
-    message: "Product is published",
-    metadata: updatedProduct,
-  }).send(res);
+    const foundProduct = await Product.findOne({
+        _id: req.params.id,
+        userId: new Types.ObjectId(req.user.id),
+        isPublished: false,
+    });
+    if (!foundProduct)
+        throw new ApiError(StatusCodes.NOT_FOUND, 'Product not found');
+    foundProduct.isPublished = true;
+    const updatedProduct = await Product.findByIdAndUpdate(
+        req.params.id,
+        foundProduct,
+        {
+            new: true,
+        }
+    );
+    return await new OK({
+        message: 'Product is published',
+        metadata: updatedProduct,
+    }).send(res);
 });
 // Un published Product
 const unPublishedProduct = catchAsync(async (req, res, next) => {
-  const foundProduct = await productModel.findOne({
-    _id: req.params.id,
-    userId: new Types.ObjectId(req.user.id),
-    isPublished: true,
-  });
-  if (!foundProduct)
-    throw new ApiError(StatusCodes.NOT_FOUND, "Product is not found");
-  foundProduct.isPublished = false;
-  const updatedProduct = await productModel.findByIdAndUpdate(
-    req.params.id,
-    foundProduct,
-    {
-      new: true,
-    }
-  );
-  return await new OK({
-    message: "Product is unPublished",
-    metadata: updatedProduct,
-  }).send(res);
+    const foundProduct = await Product.findOne({
+        _id: req.params.id,
+        userId: new Types.ObjectId(req.user.id),
+        isPublished: true,
+    });
+    if (!foundProduct)
+        throw new ApiError(StatusCodes.NOT_FOUND, 'Product is not found');
+    foundProduct.isPublished = false;
+    const updatedProduct = await Product.findByIdAndUpdate(
+        req.params.id,
+        foundProduct,
+        {
+            new: true,
+        }
+    );
+    return await new OK({
+        message: 'Product is unPublished',
+        metadata: updatedProduct,
+    }).send(res);
 });
 // Get product By id
 const getProductById = catchAsync(async (req, res, next) => {
-  const foundProduct = await productModel.findOne({
-    _id: req.params.id,
-  });
-  if (!foundProduct)
-    throw new ApiError(StatusCodes.NOT_FOUND, "Product Not Found");
-  return await new OK({
-    message: "Successfully got the data",
-    metadata: await foundProduct,
-  }).send(res);
+    const foundProduct = await Product.findOne({
+        _id: req.params.id,
+    });
+    if (!foundProduct)
+        throw new ApiError(StatusCodes.NOT_FOUND, 'Product Not Found');
+    return await new OK({
+        message: 'Successfully got the data',
+        metadata: await foundProduct,
+    }).send(res);
 });
 /* Admin Dashboard */
 // Display with adminDashboard
 const getAllProductForAdmin = catchAsync(async (req, res, next) => {
-  const queryParams = req.query;
+    const queryParams = req.query;
 
-  const page = parseInt(req.query.page) || 1;
-  const limit = parseInt(req.query.limit) || 10;
-  const products = await paginate({
-    model: productModel,
-    page: page,
-    sort: queryParams.sortBy,
-    limit: limit,
-  });
-  return new OK({
-    message: "Product list",
-    metadata: await products,
-  }).send(res);
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const products = await paginate({
+        model: Product,
+        page: page,
+        sort: queryParams.sortBy,
+        limit: limit,
+    });
+    return new OK({
+        message: 'Product list',
+        metadata: await products,
+    }).send(res);
 });
 // delete product
 const deleteProductById = catchAsync(async (req, res, next) => {
-  const foundProduct = await productModel.findOne({
-    _id: req.params.id,
-  });
-  if (!foundProduct)
-    throw new ApiError(StatusCodes.NOT_FOUND, "Product not found");
+    const foundProduct = await Product.findOne({
+        _id: req.params.id,
+    });
+    if (!foundProduct)
+        throw new ApiError(StatusCodes.NOT_FOUND, 'Product not found');
 
-  await productModel.findByIdAndDelete(req.params.id);
-  return new OK({
-    message: "Product is deleted",
-  }).send(res);
+    await Product.findByIdAndDelete(req.params.id);
+    return new OK({
+        message: 'Product is deleted',
+    }).send(res);
 });
 module.exports = {
-  createProduct,
-  updateProduct,
-  getAllProduct,
-  searchProducts,
-  publishedProductInDraft,
-  unPublishedProduct,
-  getProductById,
-  getAllProductForAdmin,
-  deleteProductById,
+    createProduct,
+    updateProduct,
+    getAllProduct,
+    searchProducts,
+    publishedProductInDraft,
+    unPublishedProduct,
+    getProductById,
+    getAllProductForAdmin,
+    deleteProductById,
 };
