@@ -1,13 +1,14 @@
 'use strict';
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
-
 const { StatusCodes, ReasonPhrases } = require('http-status-codes');
+
+const { OK, CREATED } = require('../utils/success.response');
 const ApiError = require('../utils/ApiError');
 const catchAsync = require('../utils/catchAsync');
 
 const User = require('../models/user.model');
-const { OK, CREATED } = require('../utils/success.response');
+const Cart = require('../models/cart.model');
 
 // CREATE A NEW USER
 const register = catchAsync(async (req, res, next) => {
@@ -37,9 +38,16 @@ const register = catchAsync(async (req, res, next) => {
                 ReasonPhrases.BAD_REQUEST
             );
 
+        const cart = await Cart.create({
+            user_id: newUser._id,
+        });
+
         return new CREATED({
             message: 'User created successfully',
-            metadata: newUser,
+            metadata: {
+                user: newUser,
+                cart: cart,
+            },
         }).send(res);
     }
 });
@@ -171,7 +179,7 @@ const logOut = catchAsync(async (req, res, next) => {
     } else {
         await User.findByIdAndUpdate(foundUser._id, {
             access_token: null,
-            refresh_token: null
+            refresh_token: null,
         });
         res.clearCookie('jwt', {
             httpOnly: true,
