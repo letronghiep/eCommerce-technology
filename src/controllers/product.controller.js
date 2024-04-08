@@ -98,7 +98,8 @@ const getAllProduct = catchAsync(async (req, res, next) => {
         page: page,
         sort: queryParams.sortBy,
         limit: limit,
-        select: ['name', 'brand_id', 'price'],
+        populate: 'brand_id',
+        select: ['name', 'brand_id', 'price', 'createdAt', 'image_url'],
     });
     return new OK({
         message: 'Product list',

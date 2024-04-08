@@ -22,6 +22,7 @@ const paginate = async ({
     page = 1,
     limit = 10,
     select = [],
+    populate = {}
 }) => {
     const skip = (page - 1) * limit;
     try {
@@ -34,6 +35,7 @@ const paginate = async ({
             .skip(skip)
             .limit(limit)
             .select(getSelectData(select))
+            .populate(populate)
             .exec();
         return {
             limit,

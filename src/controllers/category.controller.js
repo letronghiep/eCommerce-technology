@@ -14,23 +14,9 @@ const createCategory = catchAsync(async (req, res, next) => {
     metadata: await categoryModel.create(newCategory),
   }).send(res);
 });
-const getParentCategory = catchAsync(async (req, res, next) => {
-  const categories = await categoryModel
-    .find({
-      parentCategory: null,
-    })
-    .lean();
-  return new OK({
-    message: "Category list",
-    metadata: await categories,
-  }).send(res);
-});
-const getCategoryChild = catchAsync(async (req, res, next) => {
-  const categories = await categoryModel
-    .find({
-      parentCategory: { $ne: null },
-    })
-    .lean();
+const getAllCategories = catchAsync(async (req, res, next) => {
+  const categories = await categoryModel.find().lean();
+  console.log("categories::", categories);
   return new OK({
     message: "Category list",
     metadata: await categories,
@@ -39,7 +25,6 @@ const getCategoryChild = catchAsync(async (req, res, next) => {
 
 module.exports = {
   createCategory,
-  getCategoryChild,
-  getParentCategory,
+  getAllCategories,
 };
 // Create category
