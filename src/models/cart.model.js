@@ -30,6 +30,10 @@ const CartSchema = new Schema(
                 },
             },
         ],
+        total_cart: {
+            type: Number,
+            default: 0,
+        },
     },
     {
         timestamps: true,

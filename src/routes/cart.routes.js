@@ -1,11 +1,21 @@
 'use strict';
 const express = require('express');
 const authentication = require('../middlewares/authentication.middleware');
-const { getCart, addItemToCart } = require('../controllers/cart.controller');
+const {
+    getCart,
+    addItemToCart,
+    deleteItemToCart,
+    emptyCart,
+} = require('../controllers/cart.controller');
 
 const router = express.Router();
 
 router.use(authentication);
-router.route('/').get(getCart).post(addItemToCart);
+router
+    .route('/')
+    .get(getCart)
+    .post(addItemToCart)
+    .put(deleteItemToCart)
+    .delete(emptyCart);
 
 module.exports = router;
