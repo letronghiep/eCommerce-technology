@@ -11,6 +11,28 @@ const getCart = catchAsync(async (req, res, next) => {
         user_id: req.user.id,
     });
 
+    var totalCart = await Cart.aggregate([
+        {
+            $unwind: '$items',
+        },
+        {
+            $group: {
+                _id: null,
+                totalProduct: { $sum: '$items.quantity' },
+                totalPrice: { $sum: '$items.total' },
+            },
+        },
+        {
+            $project: {
+                _id: false,
+                totalPrice: true,
+            },
+        },
+    ]);
+    await Cart.findByIdAndUpdate(cart._id, {
+        total_cart: totalCart[0].totalPrice,
+    });
+
     if (!cart)
         throw new ApiError(StatusCodes.NOT_FOUND, ReasonPhrases.NOT_FOUND);
 
@@ -61,7 +83,6 @@ const addItemToCart = catchAsync(async (req, res, next) => {
                 ReasonPhrases.BAD_REQUEST
             );
     }
-    cart.items.splice(0, 1);
     cart.save();
     return new OK({
         message: 'Add product to cart successfully',
@@ -69,4 +90,69 @@ const addItemToCart = catchAsync(async (req, res, next) => {
     }).send(res);
 });
 
-module.exports = { getCart, addItemToCart };
+const deleteItemToCart = catchAsync(async (req, res, next) => {
+    let cart = await Cart.findOne().populate({
+        path: 'items.product_id',
+        select: 'id name price',
+    });
+
+    if (!cart)
+        throw new ApiError(StatusCodes.NOT_FOUND, ReasonPhrases.NOT_FOUND);
+
+    const productId = req.body.productId;
+    const indexFound = cart.items.findIndex(
+        (item) => item.product_id._id.toString() === productId
+    );
+
+    if (indexFound !== -1) {
+        cart.items.splice(indexFound, 1);
+        var totalCart = await Cart.aggregate([
+            {
+                $unwind: '$items',
+            },
+            {
+                $group: {
+                    _id: null,
+                    totalProduct: { $sum: '$items.quantity' },
+                    totalPrice: { $sum: '$items.total' },
+                },
+            },
+            {
+                $project: {
+                    _id: false,
+                    totalPrice: true,
+                },
+            },
+        ]);
+        await Cart.findByIdAndUpdate(cart._id, {
+            total_cart: totalCart[0].totalPrice,
+        });
+    } else
+        throw new ApiError(
+            StatusCodes.NOT_FOUND,
+            `Product code ${productId} was not found in the cart`
+        );
+
+    cart.save();
+    return new OK({
+        message: 'Successfully deleted all products in the cart',
+        metadata: cart,
+    }).send(res);
+});
+
+const emptyCart = catchAsync(async (req, res, next) => {
+    const cart = await Cart.findOne({ user_id: req.user.id });
+    if (!cart)
+        throw new ApiError(StatusCodes.NOT_FOUND, ReasonPhrases.NOT_FOUND);
+
+    cart.items = [];
+    cart.total_cart = 0;
+    cart.save();
+
+    return new OK({
+        message: 'Successfully deleted all products in the cart',
+        metadata: cart,
+    }).send(res);
+});
+
+module.exports = { getCart, addItemToCart, deleteItemToCart, emptyCart };
