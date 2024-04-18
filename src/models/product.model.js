@@ -56,6 +56,11 @@ const productSchema = new Schema(
       type: Boolean,
       default: false,
     },
+    rateAvg: {
+      type: Number,
+      default: 0,
+      
+    },
     specs: [
       {
         k: { type: String, required: true },
