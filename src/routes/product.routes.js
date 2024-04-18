@@ -9,6 +9,7 @@ const {
   updateProduct,
   getProductById,
   deleteProductById,
+  getProductBySlug
 } = require("../controllers/product.controller");
 const authentication = require("../middlewares/authentication.middleware");
 
