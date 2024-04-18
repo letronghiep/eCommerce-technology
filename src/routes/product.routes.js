@@ -7,7 +7,6 @@ const {
   publishedProductInDraft,
   unPublishedProduct,
   updateProduct,
-  getAllProductForAdmin,
   getProductById,
   deleteProductById,
 } = require("../controllers/product.controller");
@@ -19,7 +18,6 @@ router.get("/search", searchProducts);
 router.get("/:id", getProductById);
 router.use(authentication);
 router.post("/", createProduct);
-router.get("/admin", getAllProductForAdmin);
 router.patch("/:id", updateProduct);
 router.delete("/:id", deleteProductById);
 router.post("/published/:id", publishedProductInDraft);
