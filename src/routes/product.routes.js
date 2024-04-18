@@ -16,6 +16,7 @@ const router = express.Router();
 router.get("/", getAllProduct);
 router.get("/search", searchProducts);
 router.get("/:id", getProductById);
+router.get("/:slug", getProductBySlug);
 router.use(authentication);
 router.post("/", createProduct);
 router.patch("/:id", updateProduct);

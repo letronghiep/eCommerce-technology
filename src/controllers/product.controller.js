@@ -189,6 +189,18 @@ const getProductById = catchAsync(async (req, res, next) => {
     metadata: await foundProduct,
   }).send(res);
 });
+// Get product By slug
+const getProductBySlug = catchAsync(async (req, res, next) => {
+  const foundProduct = await Product.findOne({
+    slug: req.params.slug,
+  });
+  if (!foundProduct)
+    throw new ApiError(StatusCodes.NOT_FOUND, "Product Not Found");
+  return await new OK({
+    message: "Successfully got the data",
+    metadata: await foundProduct,
+  }).send(res);
+});
 /* Admin Dashboard */
 // Display with adminDashboard
 /* const getAllProductForAdmin = catchAsync(async (req, res, next) => {
@@ -229,4 +241,5 @@ module.exports = {
   unPublishedProduct,
   getProductById,
   deleteProductById,
+  getProductBySlug
 };
