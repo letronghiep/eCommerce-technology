@@ -16,7 +16,7 @@ const rattingSchema = new Schema(
             ref: 'Color',
             required: true,
         },
-        image_url: { type: String },
+        image_url: { type: Array },
     },
     {
         timestamps: true,

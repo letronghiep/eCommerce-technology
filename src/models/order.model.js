@@ -7,15 +7,29 @@ const DOCUMENT_NAME = 'Order';
 const orderSchema = new Schema(
     {
         user_id: {
-            type: mongoose.Schema.Types.ObjectId,
+            type: Schema.Types.ObjectId,
             ref: 'User',
             required: true,
         },
-        order_date: { type: Date, default: Date.now },
-        shipping_costs: { type: Number },
-        phone_number: { type: String },
-        description: { type: String },
-        order_status: { type: String },
+        order_date: {
+            type: Date,
+            default: Date.now,
+        },
+        shipping_costs: {
+            type: Number,
+        },
+        phone_number: {
+            type: String,
+            required: [true, 'Please enter a valid phone number'],
+        },
+        description: {
+            type: String,
+        },
+        order_status: {
+            type: String,
+            default: 'order',
+            enum: ['order', 'confirm', 'delivery', 'complete'],
+        },
     },
     {
         timestamps: true,

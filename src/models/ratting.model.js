@@ -12,6 +12,7 @@ const rattingSchema = new Schema(
             required: true,
         },
         rating: { type: Number, required: true },
+
         comment: { type: String },
         user_id: {
             type: Schema.Types.ObjectId,
