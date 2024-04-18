@@ -101,7 +101,7 @@ const getAllProduct = catchAsync(async (req, res, next) => {
     page: page,
     sort: queryParams.sortBy,
     limit: limit,
-    populate: "brand_id, category",
+    populate: [{ path: "brand_id" }, { path: "category" }],
   });
   return new OK({
     message: "Product list",
