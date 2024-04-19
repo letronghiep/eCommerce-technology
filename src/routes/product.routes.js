@@ -1,28 +1,35 @@
-"use strict";
-const express = require("express");
+'use strict';
+const express = require('express');
 const {
-  createProduct,
-  getAllProduct,
-  searchProducts,
-  publishedProductInDraft,
-  unPublishedProduct,
-  updateProduct,
-  getAllProductForAdmin,
-  getProductById,
-  deleteProductById,
-} = require("../controllers/product.controller");
-const authentication = require("../middlewares/authentication.middleware");
+    createProduct,
+    getAllProduct,
+    searchProducts,
+    publishedProductInDraft,
+    unPublishedProduct,
+    updateProduct,
+    getAllProductForAdmin,
+    getProductById,
+    deleteProductById,
+} = require('../controllers/product.controller');
+const authentication = require('../middlewares/authentication.middleware');
+const uploadImage = require('../middlewares/uploadImage.middleware');
 
 const router = express.Router();
-router.get("/", getAllProduct);
-router.get("/search", searchProducts);
-router.get("/:id", getProductById);
+
+router.get('/search', searchProducts);
+router
+    .route('/')
+    .get(getAllProduct)
+    .post(authentication, uploadImage, createProduct);
+
 router.use(authentication);
-router.post("/", createProduct);
-router.get("/admin", getAllProductForAdmin);
-router.patch("/:id", updateProduct);
-router.delete("/:id", deleteProductById);
-router.post("/published/:id", publishedProductInDraft);
-router.post("/unPublished/:id", unPublishedProduct);
+router
+    .route('/:id')
+    .get(getProductById)
+    .patch(updateProduct)
+    .delete(deleteProductById);
+router.get('/admin', getAllProductForAdmin);
+router.post('/published/:id', publishedProductInDraft);
+router.post('/unPublished/:id', unPublishedProduct);
 
 module.exports = router;

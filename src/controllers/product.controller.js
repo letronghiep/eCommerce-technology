@@ -28,14 +28,13 @@ const createProduct = catchAsync(async (req, res, next) => {
         price,
         quantity_import,
         promotion,
-        image_url,
         specs,
     } = req.body;
     console.log('Product specs::', specs);
     const colorObj = await Color.findById(new Types.ObjectId(color)).lean();
-    const categoryObj = await categoryModel
-        .findById(new Types.ObjectId(category))
-        .lean();
+    const categoryObj = await Category.findById(
+        new Types.ObjectId(category)
+    ).lean();
     const brandObj = await Brand.findById(new Types.ObjectId(brand_id)).lean();
     const randomCode = Math.floor(Math.random() * 100 + 1).toString();
     const last_code = randomCode.length > 1 ? randomCode : '0' + randomCode;
@@ -45,6 +44,8 @@ const createProduct = catchAsync(async (req, res, next) => {
         color: colorObj?.color_code,
         last_code: last_code,
     });
+
+    const gallery = req.files.gallery;
     const newProduct = new Product({
         name,
         brand_id,
@@ -55,7 +56,7 @@ const createProduct = catchAsync(async (req, res, next) => {
         price,
         quantity_import,
         promotion,
-        image_url,
+        gallery,
         specs,
     });
     newProduct.sku = SKU.toString();
