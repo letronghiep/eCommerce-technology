@@ -18,53 +18,53 @@ const { getSelectData } = require("../utils");
 const getProductBySearch = require("../repositories/search");
 // Create product
 const createProduct = catchAsync(async (req, res, next) => {
-  const {
-    name,
-    brand_id,
-    userId,
-    category,
-    color,
-    description,
-    price,
-    quantity_import,
-    promotion,
-    image_url,
-    rateAvg,
-    specs,
-  } = req.body;
-  console.log("Product specs::", specs);
-  const colorObj = await Color.findById(new Types.ObjectId(color)).lean();
-  const categoryObj = await Category.findById(
-    new Types.ObjectId(category)
-  ).lean();
-  const brandObj = await Brand.findById(new Types.ObjectId(brand_id)).lean();
-  const randomCode = Math.floor(Math.random() * 100 + 1).toString();
-  const last_code = randomCode.length > 1 ? randomCode : "0" + randomCode;
-  const SKU = await generateSku({
-    brand: brandObj.brand_code,
-    category: categoryObj.category_code,
-    color: colorObj?.color_code,
-    last_code: last_code,
-  });
-  const newProduct = new Product({
-    name,
-    brand_id,
-    userId,
-    category,
-    color,
-    description,
-    price,
-    quantity_import,
-    promotion,
-    image_url,
-    rateAvg,
-    specs,
-  });
-  newProduct.sku = SKU.toString();
-  return new CREATED({
-    message: "Product created successfully",
-    metadata: await Product.create(newProduct),
-  }).send(res);
+
+    const {
+        name,
+        brand_id,
+        userId,
+        category,
+        color,
+        description,
+        price,
+        quantity_import,
+        promotion,
+        specs,
+    } = req.body;
+    const colorObj = await Color.findById(new Types.ObjectId(color)).lean();
+    const categoryObj = await Category.findById(
+        new Types.ObjectId(category)
+    ).lean();
+    const brandObj = await Brand.findById(new Types.ObjectId(brand_id)).lean();
+    const randomCode = Math.floor(Math.random() * 100 + 1).toString();
+    const last_code = randomCode.length > 1 ? randomCode : '0' + randomCode;
+    const SKU = await generateSku({
+        brand: brandObj.brand_code,
+        category: categoryObj.category_code,
+        color: colorObj?.color_code,
+        last_code: last_code,
+    });
+
+    const gallery = req.files.gallery;
+    const newProduct = new Product({
+        name,
+        brand_id,
+        userId,
+        category,
+        color,
+        description,
+        price,
+        quantity_import,
+        promotion,
+        gallery,
+        specs,
+    });
+    newProduct.sku = SKU.toString();
+    return new CREATED({
+        message: 'Product created successfully',
+        metadata: await Product.create(newProduct),
+    }).send(res);
+  
 });
 
 // Update product by Id
