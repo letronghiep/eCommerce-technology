@@ -32,4 +32,5 @@ router.get('/admin', getAllProductForAdmin);
 router.post('/published/:id', publishedProductInDraft);
 router.post('/unPublished/:id', unPublishedProduct);
 
+
 module.exports = router;
