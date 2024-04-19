@@ -191,9 +191,12 @@ const getProductById = catchAsync(async (req, res, next) => {
 });
 // Get product By slug
 const getProductBySlug = catchAsync(async (req, res, next) => {
+  console.log(req.query);
   const foundProduct = await Product.findOne({
     slug: req.params.slug,
-  });
+  })
+    .populate("brand_id")
+    .populate("category");
   if (!foundProduct)
     throw new ApiError(StatusCodes.NOT_FOUND, "Product Not Found");
   return await new OK({
@@ -241,5 +244,5 @@ module.exports = {
   unPublishedProduct,
   getProductById,
   deleteProductById,
-  getProductBySlug
+  getProductBySlug,
 };
