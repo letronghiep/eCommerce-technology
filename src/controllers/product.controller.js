@@ -45,7 +45,8 @@ const createProduct = catchAsync(async (req, res, next) => {
         last_code: last_code,
     });
 
-    const gallery = req.files.gallery;
+    const image = req.urlFile.image;
+    const gallery = req.urlFile.gallery;
     const newProduct = new Product({
         name,
         brand_id,
@@ -56,6 +57,7 @@ const createProduct = catchAsync(async (req, res, next) => {
         price,
         quantity_import,
         promotion,
+        image,
         gallery,
         specs,
     });

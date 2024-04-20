@@ -23,33 +23,24 @@ const storage = new CloudinaryStorage({
 const uploadCloud = multer({ storage });
 
 const uploadImage = (req, res, next) => {
-    uploadCloud.array('gallery')(req, res, function (err) {
+    req.urlFile = {};
+
+    uploadCloud.fields([
+        { name: 'img', maxCount: 1 },
+        { name: 'gallery', maxCount: 5 },
+    ])(req, res, function (err) {
         if (err) {
             // Handle error
-            return new ApiError(
-                StatusCodes.BAD_REQUEST,
-                'Uploading gallery failed'
-            );
+            return new ApiError(StatusCodes.BAD_REQUEST, 'Upload image failed');
         }
 
-        const images = req.files.map((img) => img.path);
-        req.files.gallery = images;
+        req.urlFile.image = req.files['img'][0].path;
+
+        const gallery = req.files['gallery'].map((img) => img.path);
+        req.urlFile.gallery = gallery;
+        req.files = {};
         next();
     });
-
-    // uploadCloud.single('img')(req, res, function (err) {
-    //     if (err) {
-    //         // Handle error
-    //         return new ApiError(
-    //             StatusCodes.BAD_REQUEST,
-    //             'Uploading images failed'
-    //         );
-    //     }
-
-    //     req.files = req.files.path;
-    //     console.log(req.files);
-    //     next();
-    // });
 };
 
 module.exports = uploadImage;
