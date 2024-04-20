@@ -77,10 +77,12 @@ const productSchema = new Schema(
             ref: 'User',
         },
     },
+
     {
         timestamps: true,
         collection: COLLECTION_NAME,
     }
+
 );
 productSchema.pre('save', function (next) {
     this.slug = slugify(this.name, { lower: true });

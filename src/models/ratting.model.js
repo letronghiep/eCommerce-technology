@@ -11,10 +11,8 @@ const rattingSchema = new Schema(
             ref: 'Product',
             required: true,
         },
-        rating: {
-            type: Double,
-            required: true,
-        },
+        rating: { type: Number, required: true },
+
         comment: { type: String },
         user_id: {
             type: Schema.Types.ObjectId,
