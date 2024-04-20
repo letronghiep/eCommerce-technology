@@ -8,7 +8,10 @@ const DOCUMENT_NAME = 'Category';
 
 const categorySchema = new Schema(
     {
-        category_name: { type: String, required: true },
+        category_name: {
+            type: String,
+            required: true,
+        },
         parentCategory: {
             type: Schema.Types.ObjectId,
             ref: 'Category',
