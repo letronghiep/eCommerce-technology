@@ -32,7 +32,7 @@ const addItemToCart = catchAsync(async (req, res, next) => {
 
     const price = foundProduct.price;
 
-    let cart = await Cart.findOne().populate({
+    let cart = await Cart.findOne({ user_id: req.user.id }).populate({
         path: 'items.product_id',
         select: 'id name price',
     });
