@@ -33,4 +33,8 @@ router
 router.post('/published/:id', authentication, publishedProductInDraft);
 router.post('/unPublished/:id', authentication, unPublishedProduct);
 
+router.post('/testupload', uploadImage, (req, res) => {
+    res.send('ABC');
+});
+
 module.exports = router;

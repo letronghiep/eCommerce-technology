@@ -1,15 +1,16 @@
 'use strict';
 const express = require('express');
 const {
-    getAllOrderByIdUser,
+    getAllOrderById,
     createOrder,
+    deleteOrderById,
 } = require('../controllers/order.controller');
 const authentication = require('../middlewares/authentication.middleware');
 
 const router = express.Router();
 
 router.use(authentication);
-//router.route('/:id').put().delete();
-router.route('/').get(getAllOrderByIdUser).post(createOrder);
+router.route('/:id').delete(deleteOrderById);
+router.route('/').get(getAllOrderById).post(createOrder);
 
 module.exports = router;
