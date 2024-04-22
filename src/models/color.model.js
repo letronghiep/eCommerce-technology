@@ -8,8 +8,14 @@ const DOCUMENT_NAME = 'Color';
 
 const colorSchema = new Schema(
     {
-        color_name: { type: String, required: true },
-        slug: { type: String, unique: true },
+        color_name: {
+            type: String,
+            required: true,
+        },
+        slug: {
+            type: String,
+            unique: true,
+        },
         color_code: String,
     },
     {

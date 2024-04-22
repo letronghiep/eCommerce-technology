@@ -11,24 +11,32 @@ const orderSchema = new Schema(
             ref: 'User',
             required: true,
         },
+        products: {
+            type: Array,
+        },
         order_date: {
             type: Date,
             default: Date.now,
         },
-        shipping_costs: {
+        total_price: {
             type: Number,
         },
-        phone_number: {
-            type: String,
-            required: [true, 'Please enter a valid phone number'],
+        shipping_costs: {
+            type: Number,
+            default: 0,
         },
-        description: {
-            type: String,
+        amount: {
+            type: Number,
         },
         order_status: {
             type: String,
             default: 'order',
             enum: ['order', 'confirm', 'delivery', 'complete'],
+        },
+        shipping: {
+            type: Schema.Types.ObjectId,
+            ref: 'Shipping',
+            required: true,
         },
     },
     {
@@ -36,5 +44,10 @@ const orderSchema = new Schema(
         collection: COLLECTION_NAME,
     }
 );
+
+orderSchema.pre('save', function (next) {
+    this.amount = this.shipping_costs + this.total_price;
+    next();
+});
 
 module.exports = model(DOCUMENT_NAME, orderSchema);

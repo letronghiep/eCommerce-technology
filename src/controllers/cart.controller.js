@@ -11,28 +11,6 @@ const getCart = catchAsync(async (req, res, next) => {
         user_id: req.user.id,
     });
 
-    var totalCart = await Cart.aggregate([
-        {
-            $unwind: '$items',
-        },
-        {
-            $group: {
-                _id: null,
-                totalProduct: { $sum: '$items.quantity' },
-                totalPrice: { $sum: '$items.total' },
-            },
-        },
-        {
-            $project: {
-                _id: false,
-                totalPrice: true,
-            },
-        },
-    ]);
-    await Cart.findByIdAndUpdate(cart._id, {
-        total_cart: totalCart[0].totalPrice,
-    });
-
     if (!cart)
         throw new ApiError(StatusCodes.NOT_FOUND, ReasonPhrases.NOT_FOUND);
 
@@ -54,7 +32,7 @@ const addItemToCart = catchAsync(async (req, res, next) => {
 
     const price = foundProduct.price;
 
-    let cart = await Cart.findOne().populate({
+    let cart = await Cart.findOne({ user_id: req.user.id }).populate({
         path: 'items.product_id',
         select: 'id name price',
     });

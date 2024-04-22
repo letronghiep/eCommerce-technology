@@ -16,8 +16,8 @@ const uploadImage = require('../middlewares/uploadImage.middleware');
 
 const router = express.Router();
 
-router.get("/search", searchProducts);
-router.get("/:slug", getProductBySlug);
+router.get('/search', searchProducts);
+//router.get("/:slug", getProductBySlug);
 router.get('/search', searchProducts);
 router
     .route('/')
@@ -29,9 +29,10 @@ router
     .get(getProductById)
     .patch(authentication, updateProduct)
     .delete(authentication, deleteProductById);
-// router.get('/admin',authentication, getAllProductForAdmin);
-router.post('/published/:id',authentication, publishedProductInDraft);
-router.post('/unPublished/:id',authentication, unPublishedProduct);
 
+
+router.post('/testupload', uploadImage, (req, res) => {
+    res.send('ABC');
+});
 
 module.exports = router;

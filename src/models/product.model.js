@@ -20,12 +20,12 @@ const productSchema = new Schema(
             type: Schema.Types.ObjectId,
             ref: 'Brand',
         },
-        category: {
+        category_id: {
             type: Schema.Types.ObjectId,
             ref: 'Category',
             required: true,
         },
-        color: {
+        color_id: {
             type: Schema.Types.ObjectId,
             ref: 'Color',
         },
@@ -82,7 +82,6 @@ const productSchema = new Schema(
         timestamps: true,
         collection: COLLECTION_NAME,
     }
-
 );
 productSchema.pre('save', function (next) {
     this.slug = slugify(this.name, { lower: true });
