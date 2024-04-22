@@ -7,7 +7,7 @@ const {
     publishedProductInDraft,
     unPublishedProduct,
     updateProduct,
-    getAllProductForAdmin,
+    getProductBySlug,
     getProductById,
     deleteProductById,
 } = require('../controllers/product.controller');
@@ -29,7 +29,7 @@ router
     .get(getProductById)
     .patch(authentication, updateProduct)
     .delete(authentication, deleteProductById);
-router.get('/admin',authentication, getAllProductForAdmin);
+// router.get('/admin',authentication, getAllProductForAdmin);
 router.post('/published/:id',authentication, publishedProductInDraft);
 router.post('/unPublished/:id',authentication, unPublishedProduct);
 

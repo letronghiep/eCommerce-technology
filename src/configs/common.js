@@ -49,7 +49,10 @@ const paginate = async ({
     }
 };
 // Generate code
-const generateCode = (name) => {
+const generateCode = (str) => {
+    const name = str.normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/đ/g, 'd').replace(/Đ/g, 'D')
     if (name === null || name === '')
         return Math.floor(Math.random() * 100 + 1);
     const arr = name.split(' ');
@@ -61,7 +64,7 @@ const generateCode = (name) => {
     }
     return name.substring(0, 2).toUpperCase();
 };
-console.log(generateCode('Máy tính xách tay')); // JD
+// JD
 // SKU = category-brand-color-random2so
 const generateSku = ({ category, brand, last_code, color }) => {
     return `${brand}${category}${color}${last_code}`;
