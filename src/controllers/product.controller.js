@@ -26,6 +26,7 @@ const createProduct = catchAsync(async (req, res, next) => {
         description,
         price,
         quantity_import,
+        quantity_sold,
         promotion,
         specs,
     } = req.body;
@@ -55,6 +56,7 @@ const createProduct = catchAsync(async (req, res, next) => {
         description,
         price,
         quantity_import,
+        quantity_sold,
         promotion,
         image,
         gallery,
@@ -101,7 +103,7 @@ const getAllProduct = catchAsync(async (req, res, next) => {
         page: page,
         sort: queryParams.sortBy,
         limit: limit,
-        populate: [{ path: 'brand_id' }, { path: 'category' }],
+        populate: [{ path: 'brand_id' }, { path: 'category_id' }],
     });
     return new OK({
         message: 'Product list',
@@ -196,7 +198,7 @@ const getProductBySlug = catchAsync(async (req, res, next) => {
         slug: req.params.slug,
     })
         .populate('brand_id')
-        .populate('category');
+        .populate('category_id');
     if (!foundProduct)
         throw new ApiError(StatusCodes.NOT_FOUND, 'Product Not Found');
     return await new OK({
