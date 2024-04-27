@@ -7,11 +7,13 @@ const Cart = require('../models/cart.model');
 const { OK, CREATED } = require('../utils/success.response');
 
 const getAllOrderById = catchAsync(async (req, res, next) => {
-    const orders = await Order.findOne({ _id: req.user.id }).sort({
-        order_date: -1,
-    });
+    const orders = await Order.findOne({ _id: req.user.id })
+        .sort({
+            order_date: -1,
+        })
+        .lean();
 
-    if (!order) throw new ApiError(StatusCodes.NOT_FOUND, 'Order Not Found');
+    if (!orders) throw new ApiError(StatusCodes.NOT_FOUND, 'Order Not Found');
 
     return new OK({
         message: ReasonPhrases.OK,
@@ -34,7 +36,7 @@ const createOrder = catchAsync(async (req, res, next) => {
         products: cart.items,
         total_price,
         shipping_costs,
-        shipping: shipping_id,
+        shipping_id,
     });
 
     if (!newOrder)

@@ -21,11 +21,11 @@ const getCart = catchAsync(async (req, res, next) => {
 });
 
 const addItemToCart = catchAsync(async (req, res, next) => {
-    const productId = req.body.productId;
+    const product_id = req.body.product_id;
     const quantity = Number.parseInt(req.body.quantity) || 1;
 
     const foundProduct = await Product.findOne({
-        _id: productId,
+        _id: product_id,
     });
     if (!foundProduct)
         throw new ApiError(StatusCodes.NOT_FOUND, 'Product Not Found');
@@ -39,7 +39,7 @@ const addItemToCart = catchAsync(async (req, res, next) => {
 
     if (cart) {
         const indexFound = cart.items.findIndex(
-            (item) => item.product_id._id.toString() === productId
+            (item) => item.product_id._id.toString() === product_id
         );
 
         if (indexFound !== -1) {
@@ -50,7 +50,7 @@ const addItemToCart = catchAsync(async (req, res, next) => {
                 cart.items[indexFound].quantity * price;
         } else if (quantity > 0) {
             cart.items.push({
-                product_id: productId,
+                product_id: product_id,
                 quantity: quantity,
                 price: price,
                 total: Number.parseInt(price * quantity),
@@ -69,7 +69,7 @@ const addItemToCart = catchAsync(async (req, res, next) => {
 });
 
 const deleteItemToCart = catchAsync(async (req, res, next) => {
-    let cart = await Cart.findOne().populate({
+    let cart = await Cart.findOne({ user_id: req.user.id }).populate({
         path: 'items.product_id',
         select: 'id name price',
     });
@@ -84,27 +84,6 @@ const deleteItemToCart = catchAsync(async (req, res, next) => {
 
     if (indexFound !== -1) {
         cart.items.splice(indexFound, 1);
-        var totalCart = await Cart.aggregate([
-            {
-                $unwind: '$items',
-            },
-            {
-                $group: {
-                    _id: null,
-                    totalProduct: { $sum: '$items.quantity' },
-                    totalPrice: { $sum: '$items.total' },
-                },
-            },
-            {
-                $project: {
-                    _id: false,
-                    totalPrice: true,
-                },
-            },
-        ]);
-        await Cart.findByIdAndUpdate(cart._id, {
-            total_cart: totalCart[0].totalPrice,
-        });
     } else
         throw new ApiError(
             StatusCodes.NOT_FOUND,
