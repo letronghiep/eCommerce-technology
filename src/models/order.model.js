@@ -33,7 +33,7 @@ const orderSchema = new Schema(
             default: 'order',
             enum: ['order', 'confirm', 'delivery', 'complete'],
         },
-        shipping: {
+        shipping_id: {
             type: Schema.Types.ObjectId,
             ref: 'Shipping',
             required: true,
