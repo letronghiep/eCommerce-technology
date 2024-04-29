@@ -12,7 +12,7 @@ const {
     deleteProductById,
 } = require('../controllers/product.controller');
 const authentication = require('../middlewares/authentication.middleware');
-const uploadImage = require('../middlewares/uploadImage.middleware');
+const { uploadImage } = require('../middlewares/uploadImage.middleware');
 
 const router = express.Router();
 

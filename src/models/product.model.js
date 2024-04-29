@@ -52,7 +52,7 @@ const productSchema = new Schema(
             type: Array,
             default: [],
         },
-        image: {
+        avatar: {
             type: String,
             default: '',
             //required: [true, 'Please choose a image gallery'],
@@ -71,7 +71,7 @@ const productSchema = new Schema(
         sku: {
             type: String,
         },
-        userId: {
+        user_id: {
             type: Schema.Types.ObjectId,
             required: true,
             ref: 'User',
