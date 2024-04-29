@@ -29,9 +29,7 @@ const categorySchema = new Schema(
     }
 );
 categorySchema.pre('save', function (next) {
-    this.slug = slugify(this.category_name, {
-        lower: true,
-    });
+    this.slug = slugify(this.category_name, { lower: true });
     this.category_code = generateCode(this.category_name);
     next();
 });

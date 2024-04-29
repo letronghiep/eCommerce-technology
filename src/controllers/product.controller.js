@@ -44,13 +44,13 @@ const createProduct = catchAsync(async (req, res, next) => {
         last_code: last_code,
     });
 
-    const userId = req.user.id;
-    const image = req.urlFile.image;
+    const user_id = req.user.id;
+    const avatar = req.urlFile.avatar;
     const gallery = req.urlFile.gallery;
     const newProduct = new Product({
         name,
         brand_id,
-        userId,
+        user_id,
         category_id,
         color_id,
         description,
@@ -58,7 +58,7 @@ const createProduct = catchAsync(async (req, res, next) => {
         quantity_import,
         quantity_sold,
         promotion,
-        image,
+        avatar,
         gallery,
         specs,
     });
