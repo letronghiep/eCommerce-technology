@@ -43,7 +43,7 @@ const getAllNewsByUser = catchAsync(async (req, res, next) => {
 });
 
 const createNews = catchAsync(async (req, res, next) => {
-    const { title, description, content } = req.body;
+    const { title, topic, content } = req.body;
     const user_id = req.user.id;
     const avatar = req.urlFile.avatar;
 
@@ -51,7 +51,7 @@ const createNews = catchAsync(async (req, res, next) => {
         user_id,
         avatar,
         title,
-        description,
+        topic,
         content,
     });
 

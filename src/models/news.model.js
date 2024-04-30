@@ -16,7 +16,7 @@ const newsSchema = new Schema(
             type: String,
             required: true,
         },
-        description: {
+        topic: {
             type: String,
             required: true,
         },
@@ -32,7 +32,22 @@ const newsSchema = new Schema(
             enum: ['hiden', 'active', 'block'],
             default: 'active',
         },
-        slug: String,
+        tags: String,
+        comment: [
+            {
+                commentator: {
+                    type: Schema.Types.ObjectId,
+                    ref: 'User',
+                },
+                content: {
+                    type: String,
+                },
+                create_at: {
+                    type: Date,
+                    default: Date.now(),
+                },
+            },
+        ],
     },
     {
         timestamps: true,
@@ -41,7 +56,7 @@ const newsSchema = new Schema(
 );
 
 newsSchema.pre('save', function (next) {
-    this.slug = slugify(this.title, { lower: true });
+    this.tags = slugify(this.title, { lower: true });
     next();
 });
 module.exports = model(DOCUMENT_NAME, newsSchema);
