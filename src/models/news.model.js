@@ -29,7 +29,7 @@ const newsSchema = new Schema(
         },
         status: {
             type: String,
-            enum: ['hiden', 'active', 'block'],
+            enum: ['hidden', 'active', 'block'],
             default: 'active',
         },
         tags: String,
