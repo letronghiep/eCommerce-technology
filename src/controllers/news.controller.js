@@ -87,6 +87,73 @@ const deleteNews = catchAsync(async (req, res, next) => {
     });
 });
 
+const createComment = catchAsync(async (req, res, next) => {
+    let news = await News.findOne({ _id: req.params.newsId });
+
+    if (!news)
+        throw new ApiError(StatusCodes.NOT_FOUND, ReasonPhrases.NOT_FOUND);
+
+    const commentator = req.user.id;
+    const content = req.body.content;
+
+    news.comment.push({
+        commentator,
+        content,
+    });
+    news.save();
+
+    return new OK({
+        message: 'Comment successfully',
+        metadata: news,
+    }).send(res);
+});
+
+const updateComment = catchAsync(async (req, res, next) => {
+    let news = await News.findOne({ _id: req.params.newsId });
+
+    if (!news)
+        throw new ApiError(StatusCodes.NOT_FOUND, ReasonPhrases.NOT_FOUND);
+
+    const { comment_id, content } = req.body;
+    const commentIndex = news.comment.findIndex(
+        (comment) => comment._id.toString() === comment_id
+    );
+
+    if (commentIndex === -1)
+        throw new ApiError(StatusCodes.NOT_FOUND, 'Comment not found');
+
+    news.comment[commentIndex].content = content;
+    news.save();
+
+    return new OK({
+        message: 'Update comment successfully',
+        metadata: news,
+    }).send(res);
+});
+
+const deleteComment = catchAsync(async (req, res, next) => {
+    let news = await News.findOne({ _id: req.params.newsId });
+
+    if (!news)
+        throw new ApiError(StatusCodes.NOT_FOUND, ReasonPhrases.NOT_FOUND);
+
+    const { comment_id } = req.body;
+    const commentIndex = news.comment.findIndex(
+        (comment) => comment._id.toString() === comment_id
+    );
+
+    if (commentIndex === -1)
+        throw new ApiError(StatusCodes.NOT_FOUND, 'Comment not found');
+
+    news.comment.splice(commentIndex, 1);
+    news.save();
+
+    return new OK({
+        message: 'Delete comment successfully',
+        metadata: news,
+    }).send(res);
+});
+
 module.exports = {
     getAllNews,
     getNewsById,
@@ -94,4 +161,7 @@ module.exports = {
     createNews,
     updateNews,
     deleteNews,
+    createComment,
+    updateComment,
+    deleteComment,
 };
