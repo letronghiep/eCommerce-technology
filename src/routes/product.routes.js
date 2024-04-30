@@ -17,7 +17,7 @@ const { uploadImage } = require('../middlewares/uploadImage.middleware');
 const router = express.Router();
 
 router.get('/search', searchProducts);
-router.get("/:slug", getProductBySlug);
+router.get('/:slug', getProductBySlug);
 router.get('/search', searchProducts);
 router
     .route('/')
@@ -31,8 +31,5 @@ router
     .delete(authentication, deleteProductById);
 
 router.get('/:slug', getProductBySlug);
-router.post('/testupload', uploadImage, (req, res) => {
-    res.send('ABC');
-});
 
 module.exports = router;
