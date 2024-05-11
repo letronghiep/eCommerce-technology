@@ -11,25 +11,34 @@ const {
     updateComment,
     deleteComment,
 } = require('../controllers/news.controller');
-const authentication = require('../middlewares/authentication.middleware');
+const {
+    authentication,
+    restrictTo,
+} = require('../middlewares/authentication.middleware');
 const { uploadAvatar } = require('../middlewares/uploadImage.middleware');
 
 const router = express.Router();
 
+router.route('/you').get(authentication, getAllNewsByUser);
 router
     .route('/:id')
     .get(getNewsById)
     .put(authentication, uploadAvatar, updateNews)
     .delete(authentication, deleteNews);
-router.route('/you').get(authentication, getAllNewsByUser);
+
 router
-    .use(authentication)
     .route('/:newsId/comment')
-    .post(createComment)
-    .put(updateComment)
-    .delete(deleteComment);
+    .post(authentication, createComment)
+    .put(authentication, updateComment)
+    .delete(authentication, deleteComment);
+
 router
     .route('/')
     .get(getAllNews)
-    .post(authentication, uploadAvatar, createNews);
+    .post(
+        authentication,
+        restrictTo('shop', 'admin'),
+        uploadAvatar,
+        createNews
+    );
 module.exports = router;

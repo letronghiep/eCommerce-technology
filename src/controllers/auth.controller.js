@@ -9,6 +9,7 @@ const catchAsync = require('../utils/catchAsync');
 
 const User = require('../models/user.model');
 const Cart = require('../models/cart.model');
+const Role = require('../models/role.model');
 
 // CREATE A NEW USER
 const register = catchAsync(async (req, res, next) => {
@@ -22,21 +23,24 @@ const register = catchAsync(async (req, res, next) => {
         );
     else {
         const hashPassword = bcrypt.hashSync(req.body.password, 12);
-        const roleCode = '6604388125b88d9950f0a958';
+        const roleCode = await Role.findOne({
+            name: 'user',
+            status: 'active',
+        });
         const newUser = await User.create({
             full_name: req.body.full_name,
             username: req.body.username,
             password: hashPassword,
             phone_number: req.body.phone_number,
             email: req.body.email,
-            role_code: roleCode,
+            role_code: roleCode._id,
         });
 
         if (!newUser)
             throw new ApiError(
                 StatusCodes.BAD_REQUEST,
                 ReasonPhrases.BAD_REQUEST
-            );  
+            );
         // Create cart
 
         const cart = await Cart.create({
@@ -71,8 +75,13 @@ const logIn = catchAsync(async (req, res, next) => {
             StatusCodes.UNAUTHORIZED,
             `Password is incorrect, please try again...`
         );
-            
-    const dataToken = { id: user._id, username: user.username };
+
+    const role = await Role.findOne({ _id: user.role_code });
+    const dataToken = {
+        id: user._id,
+        username: user.username,
+        role: role.name,
+    };
     const accessToken = await jwt.sign(
         dataToken,
         process.env.ACCESS_TOKEN_SECRET,
