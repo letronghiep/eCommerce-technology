@@ -12,9 +12,11 @@ const {
   deleteProductById,
   filterProducts,
 } = require("../controllers/product.controller");
-const authentication = require("../middlewares/authentication.middleware");
-const { uploadImage } = require("../middlewares/uploadImage.middleware");
-
+const {
+    authentication,
+    restrictTo,
+} = require('../middlewares/authentication.middleware');
+const { uploadImage } = require('../middlewares/uploadImage.middleware');
 const router = express.Router();
 
 router.get("/search", searchProducts);

@@ -23,7 +23,22 @@ const authentication = catchAsync(async (req, res, next) => {
     if (!decodeUser)
         throw new ApiError(StatusCodes.FORBIDDEN, ReasonPhrases.FORBIDDEN);
 
+    console.log(decodeUser);
     req.user = decodeUser;
     next();
 });
-module.exports = authentication;
+const restrictTo = (...roles) => {
+    return (req, res, next) => {
+        if (!roles.includes(req.user.role))
+            return next(
+                new ApiError(
+                    StatusCodes.FORBIDDEN,
+                    'You do not have permission to perform this action.'
+                )
+            );
+
+        next();
+    };
+};
+
+module.exports = { authentication, restrictTo };

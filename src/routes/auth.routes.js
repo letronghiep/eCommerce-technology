@@ -6,7 +6,10 @@ const {
     logOut,
     refreshToken,
 } = require('../controllers/auth.controller');
-const authentication = require('../middlewares/authentication.middleware');
+const {
+    authentication,
+    restrictTo,
+} = require('../middlewares/authentication.middleware');
 
 const router = express.Router();
 

@@ -2,7 +2,10 @@
 const express = require('express');
 
 const {} = require('../controllers/payment.controller');
-const authentication = require('../middlewares/authentication.middleware');
+const {
+    authentication,
+    restrictTo,
+} = require('../middlewares/authentication.middleware');
 
 const router = express.Router();
 

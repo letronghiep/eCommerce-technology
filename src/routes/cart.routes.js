@@ -1,6 +1,9 @@
 'use strict';
 const express = require('express');
-const authentication = require('../middlewares/authentication.middleware');
+const {
+    authentication,
+    restrictTo,
+} = require('../middlewares/authentication.middleware');
 const {
     getCart,
     addItemToCart,

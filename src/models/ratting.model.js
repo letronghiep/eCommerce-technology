@@ -11,13 +11,23 @@ const rattingSchema = new Schema(
             ref: 'Product',
             required: true,
         },
-        rating: { type: Number, required: true },
-
-        comment: { type: String },
         user_id: {
             type: Schema.Types.ObjectId,
             ref: 'User',
             required: true,
+        },
+        ratting: {
+            type: Number,
+            required: true,
+            min: [1, 'Rating must be above 1.0'],
+            max: [5, 'Rating must be below 5.0'],
+        },
+        comment: {
+            type: String,
+        },
+        gallery: {
+            type: Array,
+            default: [],
         },
     },
     {
