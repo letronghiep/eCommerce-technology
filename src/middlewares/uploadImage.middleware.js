@@ -61,4 +61,19 @@ const uploadAvatar = (req, res, next) => {
     });
 };
 
-module.exports = { uploadImage, uploadAvatar };
+const uploadGallery = (req, res, next) => {
+    req.urlFile = {};
+
+    uploadCloud.array('gallery')(req, res, function (err) {
+        if (err) {
+            // Handle error
+            return new ApiError(StatusCodes.BAD_REQUEST, 'Upload image failed');
+        }
+
+        const gallery = req.files.map((img) => img.path);
+        req.urlFile.gallery = gallery;
+        next();
+    });
+};
+
+module.exports = { uploadImage, uploadAvatar, uploadGallery };
