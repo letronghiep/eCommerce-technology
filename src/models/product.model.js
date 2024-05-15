@@ -92,5 +92,6 @@ productSchema.index({
     description: 'text',
     'specs.k': 'text',
     'specs.v': 'text',
+    'specs.u': 'text',
 });
 module.exports = model(DOCUMENT_NAME, productSchema);
