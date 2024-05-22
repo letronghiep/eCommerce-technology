@@ -14,11 +14,6 @@ const {
   updateNestedObjectParser,
   removeUndefinedObject,
 } = require("../repositories/updateNested");
-const { getSelectData } = require("../utils");
-const {
-  getProductBySearch,
-  getProductByFilters,
-} = require("../repositories/search");
 // Create product
 const createProduct = catchAsync(async (req, res, next) => {
   const {
@@ -113,7 +108,6 @@ const getAllProduct = catchAsync(async (req, res, next) => {
     metadata: await products,
   }).send(res);
 });
-
 // search Product
 const searchProducts = catchAsync(async (req, res) => {
   const page = parseInt(req.query.page) || 1;
@@ -255,24 +249,6 @@ const getProductBySlug = catchAsync(async (req, res, next) => {
     metadata: await foundProduct,
   }).send(res);
 });
-/* Admin Dashboard */
-// Display with adminDashboard
-/* const getAllProductForAdmin = catchAsync(async (req, res, next) => {
-  const queryParams = req.query;
-
-  const page = parseInt(req.query.page) || 1;
-  const limit = parseInt(req.query.limit) || 10;
-  const products = await paginate({
-    model: Product,
-    page: page,
-    sort: queryParams.sortBy,
-    limit: limit,
-  });
-  return new OK({
-    message: "Product list",
-    metadata: await products,
-  }).send(res);
-}); */
 // delete product
 const deleteProductById = catchAsync(async (req, res, next) => {
   const foundProduct = await Product.findOne({
