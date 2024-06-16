@@ -33,6 +33,5 @@ router
   .patch(authentication, updateProduct)
   .delete(authentication, deleteProductById);
 
-router.get("/:slug", getProductBySlug);
 
 module.exports = router;

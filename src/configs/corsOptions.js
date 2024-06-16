@@ -16,5 +16,7 @@
 //     },
 //     optionsSuccessStatus: StatusCodes.OK,
 // };
-
-// module.exports = corsOptions;
+const corsOptions = {
+  origin: true,
+};
+module.exports = corsOptions;

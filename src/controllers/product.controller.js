@@ -103,6 +103,7 @@ const getAllProduct = catchAsync(async (req, res, next) => {
     limit: limit,
     populate: [{ path: "brand_id" }, { path: "category_id" }],
   });
+  console.log(products)
   return new OK({
     message: "Product list",
     metadata: await products,
