@@ -13,6 +13,7 @@ const {
 
 const router = express.Router();
 
+router.use(authentication, restrictTo('admin'));
 router.route('/:id').get(getUser).put(updateUser).delete(deleteUser);
 router.route('/').get(getAllUsers);
 
