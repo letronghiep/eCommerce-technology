@@ -29,6 +29,19 @@ var userSchema = new Schema(
             required: true,
             unique: true,
         },
+        accumulation_points: {
+            type: Number,
+            default: 0,
+        },
+        redemption_points: {
+            type: Number,
+            default: 0,
+        },
+        rank: {
+            type: String,
+            default: 'copper',
+            enum: ['copper', 'silver', 'gold', 'diamond'],
+        },
         role_code: {
             type: Schema.Types.ObjectId,
             ref: 'Role',
