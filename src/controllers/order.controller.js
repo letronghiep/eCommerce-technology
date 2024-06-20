@@ -7,7 +7,7 @@ const Cart = require('../models/cart.model');
 const { OK, CREATED } = require('../utils/success.response');
 
 const getAllOrderById = catchAsync(async (req, res, next) => {
-    const orders = await Order.findOne({ _id: req.user.id })
+    const orders = await Order.find({ _id: req.user.id })
         .sort({
             order_date: -1,
         })

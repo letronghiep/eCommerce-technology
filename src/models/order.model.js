@@ -28,6 +28,10 @@ const orderSchema = new Schema(
         amount: {
             type: Number,
         },
+        deposit: {
+            type: Number,
+            default: 0,
+        },
         order_status: {
             type: String,
             default: 'order',
