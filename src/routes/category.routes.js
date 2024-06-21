@@ -12,8 +12,8 @@ const {
 
 const router = express.Router();
 
+router.get('/', getAllCategories);
 router.use(authentication, restrictTo('admin'));
 
 router.post('/', createCategory);
-router.get('/', getAllCategories);
 module.exports = router;
