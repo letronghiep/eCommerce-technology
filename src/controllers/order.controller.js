@@ -6,8 +6,19 @@ const Order = require('../models/order.model');
 const Cart = require('../models/cart.model');
 const { OK, CREATED } = require('../utils/success.response');
 
-const getAllOrderById = catchAsync(async (req, res, next) => {
-    const orders = await Order.find({ _id: req.user.id })
+const getAllOrder = catchAsync(async (req, res, next) => {
+    const orders = await Order.find().sort({ order_date: -1 }).lean();
+
+    if (!orders) throw new ApiError(StatusCodes.NOT_FOUND, 'Order Not Found');
+
+    return new OK({
+        message: ReasonPhrases.OK,
+        metadata: orders,
+    }).send(res);
+});
+
+const getAllOrderByUser = catchAsync(async (req, res, next) => {
+    const orders = await Order.find({ user_id: req.user.id })
         .sort({
             order_date: -1,
         })
@@ -18,6 +29,17 @@ const getAllOrderById = catchAsync(async (req, res, next) => {
     return new OK({
         message: ReasonPhrases.OK,
         metadata: orders,
+    }).send(res);
+});
+
+const getOrderById = catchAsync(async (req, res, next) => {
+    const order = await Order.findOne({ _id: req.params.id }).lean();
+
+    if (!order) throw new ApiError(StatusCodes.NOT_FOUND, 'Order Not Found');
+
+    return new OK({
+        message: ReasonPhrases.OK,
+        metadata: order,
     }).send(res);
 });
 
@@ -51,16 +73,22 @@ const createOrder = catchAsync(async (req, res, next) => {
     }).send(res);
 });
 
-const deleteOrderById = catchAsync(async (req, res, next) => {
-    await Order.findByIdAndDelete(req.params.id);
-
-    res.status(StatusCodes.NO_CONTENT).json({
-        message: ReasonPhrases.NO_CONTENT,
+const updateStatusOrder = catchAsync(async (req, res, next) => {
+    const orderUpdate = await Order.findByIdAndUpdate(req.params.id, req.body, {
+        new: true,
+        runValidators: true,
     });
+
+    return new OK({
+        message: ReasonPhrases.OK,
+        metadata: orderUpdate,
+    }).send(res);
 });
 
 module.exports = {
-    getAllOrderById,
+    getAllOrder,
+    getAllOrderByUser,
+    getOrderById,
     createOrder,
-    deleteOrderById,
+    updateStatusOrder,
 };
