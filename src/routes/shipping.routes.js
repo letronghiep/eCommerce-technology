@@ -6,10 +6,7 @@ const {
     updateAddressShipping,
     deleteAddressShipping,
 } = require('../controllers/shipping.controller');
-const {
-    authentication,
-    restrictTo,
-} = require('../middlewares/authentication.middleware');
+const { authentication } = require('../middlewares/authentication.middleware');
 
 const router = express.Router();
 

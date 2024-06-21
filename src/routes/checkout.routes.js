@@ -1,11 +1,10 @@
 'use strict';
 const express = require('express');
 const {
-    getAllUsers,
-    getUser,
-    updateUser,
-    deleteUser,
-} = require('../controllers/user.controller');
+    createCheckout,
+    returnVnpCheckout,
+} = require('../controllers/checkout.controller.js');
+
 const {
     authentication,
     restrictTo,
@@ -13,7 +12,6 @@ const {
 
 const router = express.Router();
 
-router.use(authentication);
-router.route('/:id').get(getUser).put(updateUser);
-
+router.get('/thanks', returnVnpCheckout);
+router.post('/', authentication, createCheckout);
 module.exports = router;

@@ -54,4 +54,44 @@ orderSchema.pre('save', function (next) {
     next();
 });
 
+orderSchema.statics.getRevenue = async function (
+    year,
+    month = null,
+    day = null
+) {
+    const matchConditions = [{ $eq: [{ $year: '$order_date' }, year] }];
+
+    if (month !== null) {
+        matchConditions.push({ $eq: [{ $month: '$order_date' }, month] });
+    }
+
+    if (day !== null) {
+        matchConditions.push({ $eq: [{ $dayOfMonth: '$order_date' }, day] });
+    }
+
+    const pipeline = [
+        {
+            $match: {
+                $expr: {
+                    $and: matchConditions,
+                },
+            },
+        },
+        {
+            $group: {
+                _id: null,
+                totalRevenue: { $sum: '$total_price' },
+            },
+        },
+    ];
+
+    const result = await this.aggregate(pipeline);
+
+    if (result.length === 0) {
+        return 0; // No revenue found
+    }
+
+    return result[0].totalRevenue;
+};
+
 module.exports = model(DOCUMENT_NAME, orderSchema);
