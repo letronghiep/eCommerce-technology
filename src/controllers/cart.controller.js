@@ -61,8 +61,8 @@ const addItemToCart = catchAsync(async (req, res, next) => {
   //         );
   // }
   const user_id = req.user.id;
-  console.log(user_id);
   const data = req.body;
+  console.log("Data::", data);
   try {
     let cart = await cartModel.findOne({ user_id });
     if (!cart) {

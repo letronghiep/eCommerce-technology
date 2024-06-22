@@ -74,8 +74,8 @@ const createCheckout = catchAsync((req, res) => {
     vnp_Params['vnp_SecureHash'] = signed;
     vnpUrl += '?' + querystring.stringify(vnp_Params, { encode: false });
 
-    res.redirect(vnpUrl);
-    // res.send(vnpUrl);
+    // res.redirect(vnpUrl);
+    res.send(vnpUrl);
 });
 
 const returnVnpCheckout = catchAsync((req, res) => {
